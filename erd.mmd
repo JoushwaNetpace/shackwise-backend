@@ -1,0 +1,99 @@
+erDiagram
+    USER ||--|| PRIORITY : "can have"
+    USER }|--|| RATING : "can create many ratings for properties"
+    USER }|--|| PROPERTY : "can create many properties IF ADMIN"
+    USER }o--|{ CONNECTION_REQUEST : "can have many connection requests"
+    USER }o--|| NOTIFICATIONS : "can have many notifications"
+    NOTIFICATIONS ||--|| CONNECTION_REQUEST : "has"
+    PROPERTY }o--|| RATING : "can have"
+
+    USER {
+        int id PK
+        string fullName
+        string address
+        string password
+        array coordinates
+        ENUM userType "ADMIN, CUSTOMER, AGENT"
+        date createdDate
+        date updatedDate
+    }
+
+    PROPERTY {
+        int id PK
+        number noOfBeds
+        number noOfCarParking
+        number noOfBathrooms
+        number area
+        string overview
+        string address
+        array coordinates
+        USER[] ratedBy
+        USER createdBy FK
+        RATING[] ratings
+        date createdDate
+        date updatedDate
+    }
+
+    PRIORITY {
+        int id PK
+        USER userId FK
+        object affordability "rating, note"
+        object listPMarketV "rating, note"
+        object location "rating, note"
+        object kitchenSize "rating, note"
+        object masterBedroom "rating, note"
+        object masterBathroom "rating, note"
+        object secondaryBathroom "rating, note"
+        object secondaryBedroom "rating, note"
+        object livingEntertainment "rating, note"
+        object basement "rating, note"
+        object outdoorYardSpace "rating, note"
+        object parkingGarage "rating, note"
+        object overallCondition "rating, note"
+        date createdDate
+        date updatedDate
+    }
+
+    RATING {
+        int id PK
+        USER userId FK
+        PROPERTY propertyId FK
+        object affordability "rating, note"
+        object listPMarketV "rating, note"
+        object location "rating, note"
+        object kitchenSize "rating, note"
+        object masterBedroom "rating, note"
+        object masterBathroom "rating, note"
+        object secondaryBathroom "rating, note"
+        object secondaryBedroom "rating, note"
+        object livingEntertainment "rating, note"
+        object basement "rating, note"
+        object outdoorYardSpace "rating, note"
+        object parkingGarage "rating, note"
+        object overallCondition "rating, note"
+        date createdDate
+        date updatedDate
+    }
+
+    NOTIFICATIONS {
+        int id PK
+        USER userId
+        ENUM type "SHARE_REQUEST, COMPARE_REQUEST, INVITE_REQUEST, CONNECT_REQUEST"
+        ENUM sharedWith "PARTNER, AGENT"
+        boolean isViewed
+        boolean isOpened
+        CONNECTION_REQUEST requestId
+        date createdDate
+        date updatedDate
+    }
+
+    CONNECTION_REQUEST {
+        int id PK
+        USER sentBy
+        USER sentTo
+        date createdDate
+        ENUM type "SHARE_REQUEST, COMPARE_REQUEST, INVITE_REQUEST, CONNECT_REQUEST"
+        boolean isViewed
+        boolean isAccepted
+        date updatedDate
+    }
