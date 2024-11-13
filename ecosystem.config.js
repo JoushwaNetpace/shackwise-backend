@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'typescript-backend-toolkit',
+      name: 'shackwise-backend',
       script: './dist/main.js',
     },
   ],

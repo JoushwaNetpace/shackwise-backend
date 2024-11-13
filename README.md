@@ -24,12 +24,14 @@ Before you get started, make sure you have the following installed on your machi
      ```sh
      docker compose up -d
      ```
+
 2. **Install Dependencies**:
 
    - Use pnpm to install all the necessary dependencies:
      ```sh
      pnpm i
      ```
+
 3. **Configure Environment Variables**:
 
    - Create a `.env` file in the root directory.
@@ -78,11 +80,3 @@ Before you get started, make sure you have the following installed on your machi
 - **Kubernetes Support** : Integrate Kubernetes for container orchestration, enabling scalable and automated deployment of the application.
 - **CI/CD with GitHub Actions** : Implement a CI/CD pipeline using GitHub Actions to automate testing, building, and deployment processes.
 - **Testing with Jest**: Add support for unit and integration testing using Jest to ensure code reliability and maintainability.
-
-## Contributions
-
-Feel free to contribute to this project by submitting issues or pull requests. Let's build something amazing together!
-
-## **License**
-
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
