@@ -1,6 +1,7 @@
 export const ROLE_ENUM = {
-  DEFAULT_USER: 'DEFAULT_USER',
+  HOME_BUYER: 'HOME_BUYER',
   SUPER_ADMIN: 'SUPER_ADMIN',
+  HOME_AGENT: 'HOME_AGENT',
 } as const;
 
 export const SOCIAL_ACCOUNT_ENUM = {

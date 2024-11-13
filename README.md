@@ -1,9 +1,9 @@
 <p align="center">
   <img src="logo.webp" width="200px" align="center" alt="Zod logo" />
-  <h1 align="center">✨ TypeScript Backend Toolkit ✨</h1>
+  <h1 align="center">✨ ShackWise Backend ✨</h1>
   <p align="center">
     <br/>
-    Robust backend boilerplate designed for scalability, flexibility, and ease of development. It's packed with modern technologies and best practices to kickstart your next backend project.
+    The backend server for ShackWise is designed to streamline the home-buying experience by providing personalized recommendations based on user preferences. It handles data processing for ratings and preferences, calculates compatibility scores between users, and supports features that help compare and prioritize home characteristics efficiently. The server's API facilitates real-time adjustments based on user input, ensuring a tailored and collaborative decision-making process.
   </p>
 </p>
 <br/>

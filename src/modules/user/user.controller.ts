@@ -24,7 +24,7 @@ export const handleCreateUser = async (
   const user = await createUser({
     ...data,
     password: generateRandomPassword(),
-    role: 'DEFAULT_USER',
+    role: 'HOME_BUYER',
   });
 
   return successResponse(

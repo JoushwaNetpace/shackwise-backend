@@ -28,7 +28,7 @@ export const userOutSchema = z.object({
   username: z.string(),
   role: RoleTypeZ,
   phoneNo: z.string().optional(),
-  socialAccount: z.array(socialAccountInfoSchema).optional(),
+  // socialAccount: z.array(socialAccountInfoSchema).optional(),
   updatedAt: z.date().optional(),
   createdAt: z.date().optional(),
 });

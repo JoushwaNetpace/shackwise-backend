@@ -14,8 +14,7 @@ export const getOpenApiDocumentation = (): OpenAPIObject => {
     info: {
       version: config.APP_VERSION!,
       title: config.APP_NAME!,
-      description:
-        "Robust backend boilerplate designed for scalability, flexibility, and ease of development. It's packed with modern technologies and best practices to kickstart your next backend project",
+      description: 'Shack wise backend v1.0.0',
     },
     servers: [{ url: '/api' }],
   });
