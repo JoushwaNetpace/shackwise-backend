@@ -51,7 +51,7 @@ export const getUserByEmail = async (
 export const checkUserExistByEmail = async (
   email: string,
   select?: string,
-): Promise<UserType> => {
+): Promise<UserType | null> => {
   const user = await User.findOne({ email }).select(select ?? '');
 
   if (!user) {

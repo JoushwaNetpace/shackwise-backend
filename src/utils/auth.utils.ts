@@ -76,7 +76,7 @@ export const verifyToken = async <
 ): Promise<T> => {
   try {
     return verify(token, String(config.JWT_SECRET)) as T;
-  } catch (err) {
+  } catch (err: any) {
     if (err instanceof Error) {
       throw new Error(err.message);
     }
@@ -93,29 +93,29 @@ export const verifyToken = async <
 export const generateRandomPassword = (length: number = 16): string => {
   return crypto.randomBytes(length).toString('hex');
 };
-export const fetchGoogleTokens = async (
-  params: GoogleTokensRequestParams,
-): Promise<GoogleTokenResponse> => {
-  const url = 'https://oauth2.googleapis.com/token';
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      code: params.code,
-      client_id: process.env.GOOGLE_CLIENT_ID,
-      client_secret: process.env.GOOGLE_CLIENT_SECRET,
-      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
-      grant_type: 'authorization_code',
-    }),
-  });
+// export const fetchGoogleTokens = async (
+//   params: GoogleTokensRequestParams,
+// ): Promise<GoogleTokenResponse> => {
+//   const url = 'https://oauth2.googleapis.com/token';
+//   const response = await fetch(url, {
+//     method: 'POST',
+//     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+//     body: new URLSearchParams({
+//       code: params.code,
+//       client_id: process.env.GOOGLE_CLIENT_ID,
+//       client_secret: process.env.GOOGLE_CLIENT_SECRET,
+//       redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+//       grant_type: 'authorization_code',
+//     }),
+//   });
 
-  if (!response.ok) {
-    throw new Error('Failed to exchange code for tokens');
-  }
+//   if (!response.ok) {
+//     throw new Error('Failed to exchange code for tokens');
+//   }
 
-  const data: GoogleTokenResponse = await response.json();
-  return data;
-};
+//   const data: GoogleTokenResponse = await response.json();
+//   return data;
+// };
 export interface GoogleUserInfo {
   id: string; // User's unique Google ID
   email: string; // User's email address

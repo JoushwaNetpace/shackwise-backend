@@ -1,19 +1,13 @@
 import config from '../../config/config.service';
-import {
-  ROLE_ENUM,
-  RoleType,
-  //  SOCIAL_ACCOUNT_ENUM
-} from '../../enums';
-import logger from '../../lib/logger.service';
+import { RoleType } from '../../enums';
 import { SendVerificationEmailQueue } from '../../queues/email.queue';
-import { GoogleCallbackQuery } from '../../types';
 import {
   compareHash,
-  fetchGoogleTokens,
-  getUserInfo,
   hashPassword,
   JwtPayload,
   signToken,
+  verifyEmailVerificationToken,
+  verifyToken,
 } from '../../utils/auth.utils';
 import { generateRandomNumbers } from '../../utils/common.utils';
 import { UserType } from '../user/user.dto';
@@ -124,6 +118,11 @@ export const registerUserByEmail = async (
 
   return user;
 };
+export const verifyRegistrationToken = async (payload: {
+  token: string;
+}): Promise<any> => {
+  return verifyToken(payload.token);
+};
 
 export const loginUserByEmail = async (
   payload: LoginUserByEmailSchemaType,
@@ -133,6 +132,7 @@ export const loginUserByEmail = async (
   if (!user || !(await compareHash(String(user.password), payload.password))) {
     throw new Error('Invalid email or password');
   }
+  3;
 
   const jwtPayload: JwtPayload = {
     sub: String(user.id),
@@ -145,71 +145,4 @@ export const loginUserByEmail = async (
   const token = await signToken(jwtPayload);
 
   return token;
-};
-
-export const googleLogin = async (
-  payload: GoogleCallbackQuery,
-): Promise<UserType> => {
-  const { code, error } = payload;
-
-  if (error) {
-    throw new Error(error);
-  }
-
-  if (!code) {
-    throw new Error('Code Not Provided');
-  }
-  const tokenResponse = await fetchGoogleTokens({ code });
-
-  const {
-    access_token,
-    //  refresh_token,
-    //   expires_in
-  } = tokenResponse;
-
-  const userInfoResponse = await getUserInfo(access_token);
-
-  const {
-    //  id,
-    email,
-    name,
-    picture,
-  } = userInfoResponse;
-
-  const user = await getUserByEmail(email);
-
-  if (!user) {
-    const newUser = await createUser({
-      email,
-      username: name,
-      avatar: picture,
-      role: ROLE_ENUM.HOME_AGENT,
-      password: generateRandomNumbers(4),
-      // socialAccount: [
-      //   {
-      //     refreshToken: refresh_token,
-      //     tokenExpiry: new Date(Date.now() + expires_in * 1000),
-      //     accountType: SOCIAL_ACCOUNT_ENUM.GOOGLE,
-      //     accessToken: access_token,
-      //     accountID: id,
-      //   },
-      // ],
-    });
-
-    return newUser;
-  }
-
-  const updatedUser = await updateUser(user._id, {
-    // socialAccount: [
-    //   {
-    //     refreshToken: refresh_token,
-    //     tokenExpiry: new Date(Date.now() + expires_in * 1000),
-    //     accountType: SOCIAL_ACCOUNT_ENUM.GOOGLE,
-    //     accessToken: access_token,
-    //     accountID: id,
-    //   },
-    // ],
-  });
-
-  return updatedUser;
 };

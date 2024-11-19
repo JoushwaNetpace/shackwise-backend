@@ -50,7 +50,9 @@ export const registerUserByEmailSchema = z
   }, 'Password and confirm password must be same');
 
 export const loginUserByEmailSchema = baseCreateUser;
-
+export const verifyEmailVerificationSchema = z.object({
+  token: z.string({ required_error: 'token is required' }).min(1),
+});
 export type RegisterUserByEmailSchemaType = z.infer<
   typeof registerUserByEmailSchema
 >;
