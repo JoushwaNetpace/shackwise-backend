@@ -19,6 +19,7 @@ import {
   registerUserByEmail,
   resetPassword,
 } from './auth.service';
+import { getUserById, updateUser } from '../user/user.services';
 
 export const handleResetPassword = async (
   req: Request<unknown, unknown, ResetPasswordSchemaType>,
@@ -89,10 +90,26 @@ export const handleVerifyEmailVerification = async (
   try {
     // Call the service to verify the registration token
     const result = await verifyRegistrationToken({ token });
-    console.log('result>>', result);
-    return successResponse(res, 'Email successfully verified!', {
-      user: result,
-    });
+
+    // Retrieve the user by ID
+    const user = await getUserById(result.sub);
+
+    // Check if the user is already verified
+    if (user.isVerified) {
+      return successResponse(res, 'Your email is already verified.', {
+        user,
+      });
+    }
+
+    // If the user is not verified, update the isVerified flag to true
+    const updatedUser = await updateUser(result.sub, { isVerified: true });
+
+    // Return success response if the update is successful
+    if (updatedUser) {
+      return successResponse(res, 'Email successfully verified!', {
+        user: updatedUser,
+      });
+    }
   } catch (error: any) {
     // Handle any errors thrown by the service
     console.error('Verification error:', error);

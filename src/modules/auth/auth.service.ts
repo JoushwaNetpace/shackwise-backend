@@ -6,7 +6,6 @@ import {
   hashPassword,
   JwtPayload,
   signToken,
-  verifyEmailVerificationToken,
   verifyToken,
 } from '../../utils/auth.utils';
 import { generateRandomNumbers } from '../../utils/common.utils';
@@ -97,9 +96,10 @@ export const registerUserByEmail = async (
   const { role, ...rest } = payload;
 
   const user = await createUser({ ...rest, role: role }, false);
+
   if (user) {
     const jwtPayload: JwtPayload = {
-      sub: String(user.id),
+      sub: String(user._id),
       email: user?.email,
       role: String(user.role) as RoleType,
       username: user.username,
@@ -120,7 +120,7 @@ export const registerUserByEmail = async (
 };
 export const verifyRegistrationToken = async (payload: {
   token: string;
-}): Promise<any> => {
+}): Promise<JwtPayload> => {
   return verifyToken(payload.token);
 };
 

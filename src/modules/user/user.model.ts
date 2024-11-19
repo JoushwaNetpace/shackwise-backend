@@ -26,7 +26,7 @@ const UserSchema: Schema<UserType> = new Schema(
       enum: Object.keys(ROLE_ENUM),
       default: ROLE_ENUM.HOME_BUYER,
     },
-    isActive: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: true },
     isVerified: { type: Boolean, default: false },
     phoneNo: { type: String },
 
