@@ -1,3 +1,4 @@
+import config from '../../config/config.service';
 import {
   ROLE_ENUM,
   RoleType,
@@ -90,6 +91,7 @@ export const changePassword = async (
   await updateUser(userId, { password: hashedPassword });
 };
 
+// Your registerUserByEmail function
 export const registerUserByEmail = async (
   payload: RegisterUserByEmailSchemaType,
 ): Promise<UserType> => {
@@ -101,10 +103,25 @@ export const registerUserByEmail = async (
   const { role, ...rest } = payload;
 
   const user = await createUser({ ...rest, role: role }, false);
-  //   if(user){
-  // const {email}=user
-  //     SendVerificationEmailQueue({email,})
-  //   }
+  if (user) {
+    const jwtPayload: JwtPayload = {
+      sub: String(user.id),
+      email: user?.email,
+      role: String(user.role) as RoleType,
+      username: user.username,
+    };
+
+    const token = await signToken(jwtPayload);
+    const verificationLink: string = `${config.CLIENT_SIDE_URL}/verify-email/${token}`;
+
+    // Use the `add` method to enqueue the job
+    await SendVerificationEmailQueue.add('send-verification-email', {
+      email: user?.email,
+      verificationLink,
+      name: user?.name,
+    });
+  }
+
   return user;
 };
 

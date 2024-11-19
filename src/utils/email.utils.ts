@@ -8,8 +8,8 @@ export type EmailTemplates = {
     userName: string;
   };
   'verify-email': {
-    userName: string;
     verificationLink: string;
+    name: string;
   };
 };
 

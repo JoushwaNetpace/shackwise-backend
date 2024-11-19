@@ -24,7 +24,7 @@ export const socialAccountInfoSchema = z.object({
 export const userOutSchema = z.object({
   email: z.string().email(),
   avatar: z.string().url().optional(),
-  name: z.string().optional(),
+  name: z.string(),
   username: z.string(),
   isActive: z.boolean().optional(),
   role: RoleTypeZ,

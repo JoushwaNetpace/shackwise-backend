@@ -9,6 +9,7 @@ export type SendVerificationEmailTypePayload =
   EmailTemplates['verify-email'] & {
     email: string;
     verificationLink: string;
+    name: string;
   };
 
 export const sendResetPasswordEmail = async (
@@ -26,12 +27,11 @@ export const sendResetPasswordEmail = async (
 export const sendVerificationEmail = async (
   payload: SendVerificationEmailTypePayload,
 ) => {
-  const { email, verificationLink, userName } = payload;
-
+  const { email, verificationLink, name } = payload;
   await mailer.sendMail({
     from: config.EMAIL_FROM,
     to: email,
     subject: 'Verify Your Email',
-    html: renderTemplate('verify-email', { verificationLink, userName }),
+    html: renderTemplate('verify-email', { verificationLink, name }),
   });
 };
