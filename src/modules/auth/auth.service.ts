@@ -1,4 +1,10 @@
-import { ROLE_ENUM, RoleType, SOCIAL_ACCOUNT_ENUM } from '../../enums';
+import {
+  ROLE_ENUM,
+  RoleType,
+  //  SOCIAL_ACCOUNT_ENUM
+} from '../../enums';
+import logger from '../../lib/logger.service';
+import { SendVerificationEmailQueue } from '../../queues/email.queue';
 import { GoogleCallbackQuery } from '../../types';
 import {
   compareHash,
@@ -11,6 +17,7 @@ import {
 import { generateRandomNumbers } from '../../utils/common.utils';
 import { UserType } from '../user/user.dto';
 import {
+  checkUserExistByEmail,
   createUser,
   getUserByEmail,
   getUserById,
@@ -86,16 +93,18 @@ export const changePassword = async (
 export const registerUserByEmail = async (
   payload: RegisterUserByEmailSchemaType,
 ): Promise<UserType> => {
-  const userExistByEmail = await getUserByEmail(payload.email);
-
+  const userExistByEmail = await checkUserExistByEmail(payload.email);
   if (userExistByEmail) {
     throw new Error('Account already exist with same email address');
   }
 
-  const { confirmPassword, ...rest } = payload;
+  const { role, ...rest } = payload;
 
-  const user = await createUser({ ...rest, role: 'DEFAULT_USER' }, false);
-
+  const user = await createUser({ ...rest, role: role }, false);
+  //   if(user){
+  // const {email}=user
+  //     SendVerificationEmailQueue({email,})
+  //   }
   return user;
 };
 
@@ -135,11 +144,20 @@ export const googleLogin = async (
   }
   const tokenResponse = await fetchGoogleTokens({ code });
 
-  const { access_token, refresh_token, expires_in } = tokenResponse;
+  const {
+    access_token,
+    //  refresh_token,
+    //   expires_in
+  } = tokenResponse;
 
   const userInfoResponse = await getUserInfo(access_token);
 
-  const { id, email, name, picture } = userInfoResponse;
+  const {
+    //  id,
+    email,
+    name,
+    picture,
+  } = userInfoResponse;
 
   const user = await getUserByEmail(email);
 
@@ -148,32 +166,32 @@ export const googleLogin = async (
       email,
       username: name,
       avatar: picture,
-      role: ROLE_ENUM.DEFAULT_USER,
+      role: ROLE_ENUM.HOME_AGENT,
       password: generateRandomNumbers(4),
-      socialAccount: [
-        {
-          refreshToken: refresh_token,
-          tokenExpiry: new Date(Date.now() + expires_in * 1000),
-          accountType: SOCIAL_ACCOUNT_ENUM.GOOGLE,
-          accessToken: access_token,
-          accountID: id,
-        },
-      ],
+      // socialAccount: [
+      //   {
+      //     refreshToken: refresh_token,
+      //     tokenExpiry: new Date(Date.now() + expires_in * 1000),
+      //     accountType: SOCIAL_ACCOUNT_ENUM.GOOGLE,
+      //     accessToken: access_token,
+      //     accountID: id,
+      //   },
+      // ],
     });
 
     return newUser;
   }
 
   const updatedUser = await updateUser(user._id, {
-    socialAccount: [
-      {
-        refreshToken: refresh_token,
-        tokenExpiry: new Date(Date.now() + expires_in * 1000),
-        accountType: SOCIAL_ACCOUNT_ENUM.GOOGLE,
-        accessToken: access_token,
-        accountID: id,
-      },
-    ],
+    // socialAccount: [
+    //   {
+    //     refreshToken: refresh_token,
+    //     tokenExpiry: new Date(Date.now() + expires_in * 1000),
+    //     accountType: SOCIAL_ACCOUNT_ENUM.GOOGLE,
+    //     accessToken: access_token,
+    //     accountID: id,
+    //   },
+    // ],
   });
 
   return updatedUser;

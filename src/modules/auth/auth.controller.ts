@@ -94,7 +94,7 @@ export const handleGoogleCallback = async (
     COOKIE_CONFIG,
   );
 
-  return successResponse(res, 'Logged in successfully', {
-    token: user.socialAccount?.[0]?.accessToken,
-  });
+  // return successResponse(res, 'Logged in successfully', {
+  //   token: user.socialAccount?.[0]?.accessToken,
+  // });
 };

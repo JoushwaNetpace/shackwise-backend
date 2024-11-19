@@ -2,6 +2,7 @@ import z from 'zod';
 import validator from 'validator';
 import { passwordValidationSchema } from '../../common/common.schema';
 import { baseCreateUser } from '../user/user.schema';
+import { ROLE_ENUM } from '../../enums';
 
 export const resetPasswordSchema = z.object({
   userId: z
@@ -31,6 +32,11 @@ export const forgetPasswordSchema = z.object({
 export const registerUserByEmailSchema = z
   .object({
     name: z.string({ required_error: 'Name is required' }).min(1),
+    role: z
+      .enum(Object.values(ROLE_ENUM) as [keyof typeof ROLE_ENUM], {
+        required_error: 'Role is required',
+      }) // Use type assertion
+      .default(ROLE_ENUM.HOME_BUYER), // Set a default value if desired
     confirmPassword: passwordValidationSchema('Confirm Password'),
   })
   .merge(baseCreateUser)

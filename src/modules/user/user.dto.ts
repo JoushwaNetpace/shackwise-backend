@@ -26,6 +26,7 @@ export const userOutSchema = z.object({
   avatar: z.string().url().optional(),
   name: z.string().optional(),
   username: z.string(),
+  isActive: z.boolean().optional(),
   role: RoleTypeZ,
   phoneNo: z.string().optional(),
   socialAccount: z.array(socialAccountInfoSchema).optional(),
@@ -37,6 +38,7 @@ export const userSchema = userOutSchema.extend({
   otp: z.string().nullable().optional(),
   password: z.string(),
   passwordResetCode: z.string().optional().nullable(),
+  isVerified: z.boolean().optional(),
 });
 
 export const usersPaginatedSchema = definePaginatedResponse(userOutSchema);

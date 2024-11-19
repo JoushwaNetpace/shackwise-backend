@@ -1,6 +1,8 @@
 import {
   SendResetPasswordTypePayload,
+  SendVerificationEmailTypePayload,
   sendResetPasswordEmail,
+  sendVerificationEmail,
 } from '../email/email.service';
 import logger from '../lib/logger.service';
 import { Queue } from '../lib/queue.server';
@@ -23,3 +25,22 @@ export const ResetPasswordQueue = Queue<SendResetPasswordTypePayload>(
     }
   },
 );
+export const SendVerificationEmailQueue =
+  Queue<SendVerificationEmailTypePayload>(
+    'VerificationEmailQueue',
+    async (job) => {
+      try {
+        const { data } = job;
+
+        await sendVerificationEmail({
+          ...data,
+        });
+
+        return true;
+      } catch (err) {
+        if (err instanceof Error) logger.error(err.message);
+
+        throw err;
+      }
+    },
+  );

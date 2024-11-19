@@ -69,7 +69,6 @@ const boostrapServer = async () => {
       store: redisStore,
     }),
   );
-
   // Middleware to serve static files
   app.use(express.static(path.join(__dirname, '..', 'public')));
 

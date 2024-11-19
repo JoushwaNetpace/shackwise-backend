@@ -4,7 +4,6 @@ import config from '../../config/config.service';
 const clientSideUrl = new URL(config.CLIENT_SIDE_URL);
 
 export const AUTH_COOKIE_KEY = 'accessToken';
-
 export const COOKIE_CONFIG: CookieOptions = {
   httpOnly: true,
   sameSite: 'lax',

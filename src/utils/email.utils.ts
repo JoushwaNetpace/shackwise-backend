@@ -7,6 +7,10 @@ export type EmailTemplates = {
     resetLink: string;
     userName: string;
   };
+  'verify-email': {
+    userName: string;
+    verificationLink: string;
+  };
 };
 
 export const renderTemplate = <T extends keyof EmailTemplates>(

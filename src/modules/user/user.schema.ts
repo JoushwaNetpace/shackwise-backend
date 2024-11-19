@@ -8,6 +8,7 @@ export const baseCreateUser = z.object({
     .string({ required_error: 'Email is required' })
     .email({ message: 'Email is not valid' }),
   password: passwordValidationSchema('Password'),
+  phoneNo: z.string().optional(),
   username: z
     .string({ required_error: 'Username is required' })
     .min(1)
