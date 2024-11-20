@@ -24,8 +24,12 @@ const UserSchema: Schema<UserType> = new Schema(
       type: String,
       required: true,
       enum: Object.keys(ROLE_ENUM),
-      default: ROLE_ENUM.DEFAULT_USER,
+      default: ROLE_ENUM.HOME_BUYER,
     },
+    isActive: { type: Boolean, default: true },
+    isVerified: { type: Boolean, default: false },
+    phoneNo: { type: String },
+
     password: { type: String, required: true, select: false },
     passwordResetCode: { type: String },
     socialAccount: [{ type: SocialAccountSchema, required: false }],

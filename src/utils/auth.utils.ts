@@ -4,6 +4,11 @@ import config from '../config/config.service';
 import logger from '../lib/logger.service';
 import crypto from 'node:crypto';
 import { RoleType } from '../enums';
+import { UserType } from '../modules/user/user.dto';
+import {
+  SendForgotPasswordEmailQueue,
+  SendVerificationEmailQueue,
+} from '../queues/email.queue';
 
 export interface GoogleTokenResponse {
   access_token: string;
@@ -76,7 +81,7 @@ export const verifyToken = async <
 ): Promise<T> => {
   try {
     return verify(token, String(config.JWT_SECRET)) as T;
-  } catch (err) {
+  } catch (err: any) {
     if (err instanceof Error) {
       throw new Error(err.message);
     }
@@ -89,33 +94,68 @@ export const verifyToken = async <
     throw err;
   }
 };
+export const sendVerificationEmailUtil = async (
+  user: UserType,
+): Promise<void> => {
+  // Create the JWT payload
+  const jwtPayload: JwtPayload = {
+    sub: String(user._id),
+    email: user.email,
+    role: String(user.role) as RoleType,
+    username: user.username,
+  };
+
+  // Sign the token using the JWT payload
+  const token = await signToken(jwtPayload);
+
+  // Construct the verification link
+  const verificationLink: string = `${config.CLIENT_SIDE_URL}/verify-email/${token}`;
+
+  // Enqueue the job to send the verification email
+  await SendVerificationEmailQueue.add('send-verification-email', {
+    email: user.email,
+    verificationLink,
+    name: user.name,
+  });
+};
+export const sendForgotPasswordEmailUtil = async (
+  user: UserType,
+  code: string,
+): Promise<void> => {
+  // Enqueue the job to send the verification email
+  await SendForgotPasswordEmailQueue.add('send-forgot-password-email', {
+    email: user.email,
+    code,
+    name: user.name,
+  });
+};
 
 export const generateRandomPassword = (length: number = 16): string => {
   return crypto.randomBytes(length).toString('hex');
 };
-export const fetchGoogleTokens = async (
-  params: GoogleTokensRequestParams,
-): Promise<GoogleTokenResponse> => {
-  const url = 'https://oauth2.googleapis.com/token';
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      code: params.code,
-      client_id: process.env.GOOGLE_CLIENT_ID,
-      client_secret: process.env.GOOGLE_CLIENT_SECRET,
-      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
-      grant_type: 'authorization_code',
-    }),
-  });
+// export const fetchGoogleTokens = async (
+//   params: GoogleTokensRequestParams,
+// ): Promise<GoogleTokenResponse> => {
+//   const url = 'https://oauth2.googleapis.com/token';
+//   const response = await fetch(url, {
+//     method: 'POST',
+//     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+//     body: new URLSearchParams({
+//       code: params.code,
+//       client_id: process.env.GOOGLE_CLIENT_ID,
+//       client_secret: process.env.GOOGLE_CLIENT_SECRET,
+//       redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+//       grant_type: 'authorization_code',
+//     }),
+//   });
 
-  if (!response.ok) {
-    throw new Error('Failed to exchange code for tokens');
-  }
+//   if (!response.ok) {
+//     throw new Error('Failed to exchange code for tokens');
+//   }
 
-  const data: GoogleTokenResponse = await response.json();
-  return data;
-};
+//   const data: GoogleTokenResponse = await response.json();
+//   return data;
+// };
 export interface GoogleUserInfo {
   id: string; // User's unique Google ID
   email: string; // User's email address

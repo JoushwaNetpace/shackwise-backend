@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import config from '../../config/config.service';
-import { GoogleCallbackQuery } from '../../types';
-import { successResponse } from '../../utils/api.utils';
+// import { GoogleCallbackQuery } from '../../types';
+import { errorResponse, successResponse } from '../../utils/api.utils';
 import { JwtPayload } from '../../utils/auth.utils';
 import { AUTH_COOKIE_KEY, COOKIE_CONFIG } from './auth.constants';
 import {
@@ -14,11 +14,13 @@ import {
 import {
   changePassword,
   forgetPassword,
-  googleLogin,
-  loginUserByEmail,
+  verifyRegistrationToken,
   registerUserByEmail,
   resetPassword,
+  loginUserByUsername,
+  resendVerificationEmail,
 } from './auth.service';
+import { getUserById, updateUser } from '../user/user.services';
 
 export const handleResetPassword = async (
   req: Request<unknown, unknown, ResetPasswordSchemaType>,
@@ -62,11 +64,11 @@ export const handleLogout = async (_: Request, res: Response) => {
   return successResponse(res, 'Logout successful');
 };
 
-export const handleLoginByEmail = async (
+export const handleLoginByUsername = async (
   req: Request<unknown, unknown, LoginUserByEmailSchemaType>,
   res: Response,
 ) => {
-  const token = await loginUserByEmail(req.body);
+  const token = await loginUserByUsername(req.body);
   if (config.SET_SESSION) {
     res.cookie(AUTH_COOKIE_KEY, token, COOKIE_CONFIG);
   }
@@ -78,23 +80,60 @@ export const handleGetCurrentUser = async (req: Request, res: Response) => {
 
   return successResponse(res, undefined, user);
 };
-export const handleGoogleLogin = async (_: Request, res: Response) => {
-  const googleAuthURL = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${process.env.GOOGLE_CLIENT_ID}&redirect_uri=${process.env.GOOGLE_REDIRECT_URI}&scope=email profile`;
-  res.redirect(googleAuthURL);
-};
-export const handleGoogleCallback = async (
-  req: Request<unknown, unknown, unknown, GoogleCallbackQuery>,
-  res: Response,
-) => {
-  const user = await googleLogin(req.query);
-  if (!user) throw new Error('Failed to login');
-  res.cookie(
-    AUTH_COOKIE_KEY,
-    user.socialAccount?.[0]?.accessToken,
-    COOKIE_CONFIG,
-  );
 
-  return successResponse(res, 'Logged in successfully', {
-    token: user.socialAccount?.[0]?.accessToken,
-  });
+// Controller for verifying registration token
+export const handleVerifyEmailVerification = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const { token } = req.body; // Assuming the token is coming from the request body
+
+  try {
+    // Call the service to verify the registration token
+    const result = await verifyRegistrationToken({ token });
+
+    // Retrieve the user by ID
+    const user = await getUserById(result.sub);
+
+    // Check if the user is already verified
+    if (user.isVerified) {
+      return successResponse(res, 'Your email is already verified.', {
+        user,
+      });
+    }
+
+    // If the user is not verified, update the isVerified flag to true
+    const updatedUser = await updateUser(result.sub, { isVerified: true });
+
+    // Return success response if the update is successful
+    if (updatedUser) {
+      return successResponse(res, 'Email successfully verified!', {
+        user: updatedUser,
+      });
+    }
+  } catch (error: any) {
+    // Handle any errors thrown by the service
+    console.error('Verification error:', error);
+
+    errorResponse(res, error.message, 400, error);
+  }
+};
+// Controller for resending verification email
+export const handleResendVerificationEmail = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const { email } = req.body; // Assuming the token is coming from the request body
+
+  try {
+    // Call the service to resend verifcation email
+    await resendVerificationEmail({ email });
+
+    return successResponse(res, 'Verification email resent successfully.', {});
+  } catch (error: any) {
+    // Handle any errors thrown by the service
+    console.error('Resend verification email error:', error);
+
+    errorResponse(res, error.message, 400, error);
+  }
 };

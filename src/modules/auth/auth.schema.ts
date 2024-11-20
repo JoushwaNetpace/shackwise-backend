@@ -2,6 +2,7 @@ import z from 'zod';
 import validator from 'validator';
 import { passwordValidationSchema } from '../../common/common.schema';
 import { baseCreateUser } from '../user/user.schema';
+import { ROLE_ENUM } from '../../enums';
 
 export const resetPasswordSchema = z.object({
   userId: z
@@ -30,7 +31,17 @@ export const forgetPasswordSchema = z.object({
 
 export const registerUserByEmailSchema = z
   .object({
+    email: z
+      .string({ required_error: 'Email is required' })
+      .email('Email must be valid'),
     name: z.string({ required_error: 'Name is required' }).min(1),
+    phoneNo: z.string().optional(),
+
+    role: z
+      .enum(Object.values(ROLE_ENUM) as [keyof typeof ROLE_ENUM], {
+        required_error: 'Role is required',
+      }) // Use type assertion
+      .default(ROLE_ENUM.HOME_BUYER), // Set a default value if desired
     confirmPassword: passwordValidationSchema('Confirm Password'),
   })
   .merge(baseCreateUser)
@@ -44,7 +55,14 @@ export const registerUserByEmailSchema = z
   }, 'Password and confirm password must be same');
 
 export const loginUserByEmailSchema = baseCreateUser;
-
+export const verifyEmailVerificationSchema = z.object({
+  token: z.string({ required_error: 'token is required' }).min(1),
+});
+export const resendEmailVerificationSchema = z.object({
+  email: z
+    .string({ required_error: 'Email is required' })
+    .email('Email must be valid'),
+});
 export type RegisterUserByEmailSchemaType = z.infer<
   typeof registerUserByEmailSchema
 >;

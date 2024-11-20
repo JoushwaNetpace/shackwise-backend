@@ -4,9 +4,6 @@ import { ROLE_ENUM, RoleType } from '../../enums';
 import { isValidUsername } from '../../utils/isUsername';
 
 export const baseCreateUser = z.object({
-  email: z
-    .string({ required_error: 'Email is required' })
-    .email({ message: 'Email is not valid' }),
   password: passwordValidationSchema('Password'),
   username: z
     .string({ required_error: 'Username is required' })
@@ -14,12 +11,24 @@ export const baseCreateUser = z.object({
     .refine((value) => isValidUsername(value), 'Username must be valid'),
 });
 
+export const updateUserSchema = z.object({
+  phoneNo: z.string().optional(),
+
+  name: z.string().min(1).optional(),
+});
 export const createUserSchema = z
   .object({
+    email: z
+      .string({ required_error: 'Email is required' })
+      .email({ message: 'Email is not valid' }),
+    phoneNo: z.string().optional(),
+
     name: z.string({ required_error: 'First name is required' }).min(1),
   })
   .merge(baseCreateUser);
-
+export const updateUserParamsSchema = z.object({
+  userId: z.string({ required_error: 'Email is required' }),
+});
 export const getUsersSchema = z.object({
   searchString: z.string().optional(),
   limitParam: z

@@ -42,8 +42,31 @@ export const getUserByEmail = async (
   select?: string,
 ): Promise<UserType> => {
   const user = await User.findOne({ email }).select(select ?? '');
+
   if (!user) {
     throw new Error('User not found');
+  }
+  return user.toObject();
+};
+export const getUserByUsername = async (
+  username: string,
+  select?: string,
+): Promise<UserType> => {
+  const user = await User.findOne({ username }).select(select ?? '');
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+  return user.toObject();
+};
+export const checkUserExistByEmail = async (
+  email: string,
+  select?: string,
+): Promise<UserType | null> => {
+  const user = await User.findOne({ email }).select(select ?? '');
+
+  if (!user) {
+    return null;
   }
   return user.toObject();
 };
@@ -79,7 +102,7 @@ export const getUsers = async (
   if (payload.filterByRole) {
     conditions.role = payload.filterByRole;
   } else {
-    conditions.role = { $in: ['DEFAULT_USER'] };
+    conditions.role = { $in: ['HOME_BUYER'] };
   }
 
   const totalRecords = await User.countDocuments(conditions);

@@ -4,19 +4,21 @@ import {
   handleChangePassword,
   handleForgetPassword,
   handleGetCurrentUser,
-  handleGoogleCallback,
-  handleGoogleLogin,
-  handleLoginByEmail,
+  handleVerifyEmailVerification,
+  handleLoginByUsername,
   handleLogout,
   handleRegisterUser,
   handleResetPassword,
+  handleResendVerificationEmail,
 } from './auth.controller';
 import {
   changePasswordSchema,
   forgetPasswordSchema,
   loginUserByEmailSchema,
   registerUserByEmailSchema,
+  resendEmailVerificationSchema,
   resetPasswordSchema,
+  verifyEmailVerificationSchema,
 } from './auth.schema';
 
 export const AUTH_ROUTER_ROOT = '/auth';
@@ -30,12 +32,22 @@ authRouter.post(
 );
 
 authRouter.post(
-  '/login/email',
+  '/login',
   { requestType: { body: loginUserByEmailSchema } },
-  handleLoginByEmail,
+  handleLoginByUsername,
 );
 
-authRouter.post('/logout', {}, handleLogout);
+// authRouter.post('/logout', {}, handleLogout);
+authRouter.post(
+  '/verify-email',
+  { requestType: { body: verifyEmailVerificationSchema } },
+  handleVerifyEmailVerification,
+);
+authRouter.post(
+  '/resend-verify-email',
+  { requestType: { body: resendEmailVerificationSchema } },
+  handleResendVerificationEmail,
+);
 
 authRouter.get('/user', {}, canAccess(), handleGetCurrentUser);
 
@@ -58,7 +70,7 @@ authRouter.post(
   handleResetPassword,
 );
 
-authRouter.get('/google', {}, handleGoogleLogin);
-authRouter.get('/google/callback', {}, handleGoogleCallback);
+// authRouter.get('/google', {}, handleGoogleLogin);
+// authRouter.get('/google/callback', {}, handleGoogleCallback);
 
 export default authRouter.getRouter();
