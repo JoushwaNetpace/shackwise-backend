@@ -37,7 +37,7 @@ authRouter.post(
   handleLoginByUsername,
 );
 
-authRouter.post('/logout', {}, handleLogout);
+// authRouter.post('/logout', {}, handleLogout);
 authRouter.post(
   '/verify-email',
   { requestType: { body: verifyEmailVerificationSchema } },

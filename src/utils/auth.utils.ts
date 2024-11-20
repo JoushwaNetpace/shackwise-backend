@@ -5,7 +5,10 @@ import logger from '../lib/logger.service';
 import crypto from 'node:crypto';
 import { RoleType } from '../enums';
 import { UserType } from '../modules/user/user.dto';
-import { SendVerificationEmailQueue } from '../queues/email.queue';
+import {
+  SendForgotPasswordEmailQueue,
+  SendVerificationEmailQueue,
+} from '../queues/email.queue';
 
 export interface GoogleTokenResponse {
   access_token: string;
@@ -112,6 +115,17 @@ export const sendVerificationEmailUtil = async (
   await SendVerificationEmailQueue.add('send-verification-email', {
     email: user.email,
     verificationLink,
+    name: user.name,
+  });
+};
+export const sendForgotPasswordEmailUtil = async (
+  user: UserType,
+  code: string,
+): Promise<void> => {
+  // Enqueue the job to send the verification email
+  await SendForgotPasswordEmailQueue.add('send-forgot-password-email', {
+    email: user.email,
+    code,
     name: user.name,
   });
 };

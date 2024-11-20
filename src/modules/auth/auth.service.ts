@@ -3,6 +3,7 @@ import {
   compareHash,
   hashPassword,
   JwtPayload,
+  sendForgotPasswordEmailUtil,
   sendVerificationEmailUtil,
   signToken,
   verifyToken,
@@ -56,7 +57,7 @@ export const forgetPassword = async (
   const code = generateRandomNumbers(4);
 
   await updateUser(user._id, { passwordResetCode: code });
-
+  await sendForgotPasswordEmailUtil(user, code);
   return user;
 };
 

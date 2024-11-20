@@ -1,6 +1,8 @@
 import {
+  ForgotPasswordTypePayload,
   SendResetPasswordTypePayload,
   SendVerificationEmailTypePayload,
+  sendForgotPasswordEmail,
   sendResetPasswordEmail,
   sendVerificationEmail,
 } from '../email/email.service';
@@ -44,3 +46,21 @@ export const SendVerificationEmailQueue =
       }
     },
   );
+export const SendForgotPasswordEmailQueue = Queue<ForgotPasswordTypePayload>(
+  'ForgotPasswordEmailQueue',
+  async (job) => {
+    try {
+      const { data } = job;
+
+      await sendForgotPasswordEmail({
+        ...data,
+      });
+
+      return true;
+    } catch (err) {
+      if (err instanceof Error) logger.error(err.message);
+
+      throw err;
+    }
+  },
+);

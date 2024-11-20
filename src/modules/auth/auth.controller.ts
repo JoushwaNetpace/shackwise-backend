@@ -127,11 +127,9 @@ export const handleResendVerificationEmail = async (
 
   try {
     // Call the service to resend verifcation email
-    const result = await resendVerificationEmail({ email });
+    await resendVerificationEmail({ email });
 
-    return successResponse(res, 'Verification email resent successfully.', {
-      result,
-    });
+    return successResponse(res, 'Verification email resent successfully.', {});
   } catch (error: any) {
     // Handle any errors thrown by the service
     console.error('Resend verification email error:', error);

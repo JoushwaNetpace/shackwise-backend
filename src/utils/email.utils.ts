@@ -11,6 +11,10 @@ export type EmailTemplates = {
     verificationLink: string;
     name: string;
   };
+  'forgot-password': {
+    code: string;
+    name: string;
+  };
 };
 
 export const renderTemplate = <T extends keyof EmailTemplates>(
