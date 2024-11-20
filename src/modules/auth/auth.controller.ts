@@ -15,9 +15,10 @@ import {
   changePassword,
   forgetPassword,
   verifyRegistrationToken,
-  loginUserByEmail,
   registerUserByEmail,
   resetPassword,
+  loginUserByUsername,
+  resendVerificationEmail,
 } from './auth.service';
 import { getUserById, updateUser } from '../user/user.services';
 
@@ -63,11 +64,11 @@ export const handleLogout = async (_: Request, res: Response) => {
   return successResponse(res, 'Logout successful');
 };
 
-export const handleLoginByEmail = async (
+export const handleLoginByUsername = async (
   req: Request<unknown, unknown, LoginUserByEmailSchemaType>,
   res: Response,
 ) => {
-  const token = await loginUserByEmail(req.body);
+  const token = await loginUserByUsername(req.body);
   if (config.SET_SESSION) {
     res.cookie(AUTH_COOKIE_KEY, token, COOKIE_CONFIG);
   }
@@ -113,6 +114,27 @@ export const handleVerifyEmailVerification = async (
   } catch (error: any) {
     // Handle any errors thrown by the service
     console.error('Verification error:', error);
+
+    errorResponse(res, error.message, 400, error);
+  }
+};
+// Controller for resending verification email
+export const handleResendVerificationEmail = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const { email } = req.body; // Assuming the token is coming from the request body
+
+  try {
+    // Call the service to resend verifcation email
+    const result = await resendVerificationEmail({ email });
+
+    return successResponse(res, 'Verification email resent successfully.', {
+      result,
+    });
+  } catch (error: any) {
+    // Handle any errors thrown by the service
+    console.error('Resend verification email error:', error);
 
     errorResponse(res, error.message, 400, error);
   }

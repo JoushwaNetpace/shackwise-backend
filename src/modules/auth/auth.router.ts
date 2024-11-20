@@ -5,16 +5,18 @@ import {
   handleForgetPassword,
   handleGetCurrentUser,
   handleVerifyEmailVerification,
-  handleLoginByEmail,
+  handleLoginByUsername,
   handleLogout,
   handleRegisterUser,
   handleResetPassword,
+  handleResendVerificationEmail,
 } from './auth.controller';
 import {
   changePasswordSchema,
   forgetPasswordSchema,
   loginUserByEmailSchema,
   registerUserByEmailSchema,
+  resendEmailVerificationSchema,
   resetPasswordSchema,
   verifyEmailVerificationSchema,
 } from './auth.schema';
@@ -30,9 +32,9 @@ authRouter.post(
 );
 
 authRouter.post(
-  '/login/email',
+  '/login',
   { requestType: { body: loginUserByEmailSchema } },
-  handleLoginByEmail,
+  handleLoginByUsername,
 );
 
 authRouter.post('/logout', {}, handleLogout);
@@ -40,6 +42,11 @@ authRouter.post(
   '/verify-email',
   { requestType: { body: verifyEmailVerificationSchema } },
   handleVerifyEmailVerification,
+);
+authRouter.post(
+  '/resend-verify-email',
+  { requestType: { body: resendEmailVerificationSchema } },
+  handleResendVerificationEmail,
 );
 
 authRouter.get('/user', {}, canAccess(), handleGetCurrentUser);

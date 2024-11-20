@@ -1,10 +1,9 @@
-import config from '../../config/config.service';
 import { RoleType } from '../../enums';
-import { SendVerificationEmailQueue } from '../../queues/email.queue';
 import {
   compareHash,
   hashPassword,
   JwtPayload,
+  sendVerificationEmailUtil,
   signToken,
   verifyToken,
 } from '../../utils/auth.utils';
@@ -15,6 +14,7 @@ import {
   createUser,
   getUserByEmail,
   getUserById,
+  getUserByUsername,
   updateUser,
 } from '../user/user.services';
 import {
@@ -98,23 +98,23 @@ export const registerUserByEmail = async (
   const user = await createUser({ ...rest, role: role }, false);
 
   if (user) {
-    const jwtPayload: JwtPayload = {
-      sub: String(user._id),
-      email: user?.email,
-      role: String(user.role) as RoleType,
-      username: user.username,
-    };
-
-    const token = await signToken(jwtPayload);
-    const verificationLink: string = `${config.CLIENT_SIDE_URL}/verify-email/${token}`;
-
-    // Use the `add` method to enqueue the job
-    await SendVerificationEmailQueue.add('send-verification-email', {
-      email: user?.email,
-      verificationLink,
-      name: user?.name,
-    });
+    // Call the utility function to send the verification email
+    await sendVerificationEmailUtil(user);
   }
+
+  return user;
+};
+// Your registerUserByEmail function
+export const resendVerificationEmail = async (payload: {
+  email: string;
+}): Promise<UserType> => {
+  const user = await getUserByEmail(payload.email);
+  if (!user) {
+    throw new Error('User is not found');
+  }
+
+  // Call the utility function to send the verification email
+  await sendVerificationEmailUtil(user);
 
   return user;
 };
@@ -124,18 +124,18 @@ export const verifyRegistrationToken = async (payload: {
   return verifyToken(payload.token);
 };
 
-export const loginUserByEmail = async (
+export const loginUserByUsername = async (
   payload: LoginUserByEmailSchemaType,
 ): Promise<string> => {
-  const user = await getUserByEmail(payload.email, '+password');
+  const user = await getUserByUsername(payload.username, '+password');
 
   if (!user || !(await compareHash(String(user.password), payload.password))) {
-    throw new Error('Invalid email or password');
+    throw new Error('Invalid username or password');
   }
   3;
 
   const jwtPayload: JwtPayload = {
-    sub: String(user.id),
+    sub: String(user._id),
     email: user?.email,
     phoneNo: user?.phoneNo,
     role: String(user.role) as RoleType,

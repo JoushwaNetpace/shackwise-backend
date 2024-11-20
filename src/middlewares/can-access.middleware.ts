@@ -21,7 +21,6 @@ export const canAccess =
   ) => {
     try {
       const requestUser = req?.user as JwtPayload;
-
       if (!requestUser) {
         return errorResponse(
           res,
@@ -35,7 +34,7 @@ export const canAccess =
         return errorResponse(res, 'Login again', StatusCodes.UNAUTHORIZED);
       }
 
-      if (currentUser.otp !== null) {
+      if (currentUser.isVerified == false) {
         return errorResponse(
           res,
           'Your account is not verified',

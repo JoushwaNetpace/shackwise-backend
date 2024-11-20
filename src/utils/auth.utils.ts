@@ -4,6 +4,8 @@ import config from '../config/config.service';
 import logger from '../lib/logger.service';
 import crypto from 'node:crypto';
 import { RoleType } from '../enums';
+import { UserType } from '../modules/user/user.dto';
+import { SendVerificationEmailQueue } from '../queues/email.queue';
 
 export interface GoogleTokenResponse {
   access_token: string;
@@ -88,6 +90,30 @@ export const verifyToken = async <
     logger.error('verifyToken', { err });
     throw err;
   }
+};
+export const sendVerificationEmailUtil = async (
+  user: UserType,
+): Promise<void> => {
+  // Create the JWT payload
+  const jwtPayload: JwtPayload = {
+    sub: String(user._id),
+    email: user.email,
+    role: String(user.role) as RoleType,
+    username: user.username,
+  };
+
+  // Sign the token using the JWT payload
+  const token = await signToken(jwtPayload);
+
+  // Construct the verification link
+  const verificationLink: string = `${config.CLIENT_SIDE_URL}/verify-email/${token}`;
+
+  // Enqueue the job to send the verification email
+  await SendVerificationEmailQueue.add('send-verification-email', {
+    email: user.email,
+    verificationLink,
+    name: user.name,
+  });
 };
 
 export const generateRandomPassword = (length: number = 16): string => {

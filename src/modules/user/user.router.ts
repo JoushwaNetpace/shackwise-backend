@@ -4,9 +4,15 @@ import {
   handleCreateSuperAdmin,
   handleCreateUser,
   handleGetUsers,
+  handleUpdateUser,
 } from './user.controller';
 import { usersPaginatedSchema } from './user.dto';
-import { createUserSchema, getUsersSchema } from './user.schema';
+import {
+  createUserSchema,
+  getUsersSchema,
+  updateUserParamsSchema,
+  updateUserSchema,
+} from './user.schema';
 
 export const USER_ROUTER_ROOT = '/users';
 
@@ -27,6 +33,12 @@ userRouter.post(
   { requestType: { body: createUserSchema } },
   canAccess('roles', ['SUPER_ADMIN']),
   handleCreateUser,
+);
+userRouter.patch(
+  '/user/:userId',
+  { requestType: { params: updateUserParamsSchema, body: updateUserSchema } },
+  canAccess('roles', ['SUPER_ADMIN', 'HOME_BUYER', 'HOME_AGENT']),
+  handleUpdateUser,
 );
 
 userRouter.post('/_super-admin', {}, handleCreateSuperAdmin);

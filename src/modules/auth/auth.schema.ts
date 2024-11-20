@@ -31,7 +31,12 @@ export const forgetPasswordSchema = z.object({
 
 export const registerUserByEmailSchema = z
   .object({
+    email: z
+      .string({ required_error: 'Email is required' })
+      .email('Email must be valid'),
     name: z.string({ required_error: 'Name is required' }).min(1),
+    phoneNo: z.string().optional(),
+
     role: z
       .enum(Object.values(ROLE_ENUM) as [keyof typeof ROLE_ENUM], {
         required_error: 'Role is required',
@@ -52,6 +57,11 @@ export const registerUserByEmailSchema = z
 export const loginUserByEmailSchema = baseCreateUser;
 export const verifyEmailVerificationSchema = z.object({
   token: z.string({ required_error: 'token is required' }).min(1),
+});
+export const resendEmailVerificationSchema = z.object({
+  email: z
+    .string({ required_error: 'Email is required' })
+    .email('Email must be valid'),
 });
 export type RegisterUserByEmailSchemaType = z.infer<
   typeof registerUserByEmailSchema
