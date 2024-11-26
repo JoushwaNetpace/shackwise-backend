@@ -2,7 +2,7 @@ import * as z from 'zod';
 
 // Define a schema for fields containing `rating` and `note`
 const priorityFieldSchema = z.object({
-  rating: z.number({ required_error: 'Rating is required' }).min(1).max(5), // Assuming ratings range from 1 to 5
+  rating: z.number({ required_error: 'Rating is required' }).min(0).max(100), // Assuming ratings range from 1 to 5
   note: z.string().optional(), // Note is optional
 });
 
@@ -24,13 +24,31 @@ export const basePrioritySchema = z.object({
   overallCondition: priorityFieldSchema,
 });
 
+// Update schema for updating a priority
+export const updatePrioritySchemaL = z.object({
+  userId: z.string({ required_error: 'User ID is required' }), // User ID reference
+  affordability: priorityFieldSchema.optional(),
+  listPMarketV: priorityFieldSchema.optional(),
+  location: priorityFieldSchema.optional(),
+  kitchenSize: priorityFieldSchema.optional(),
+  masterBedroom: priorityFieldSchema.optional(),
+  masterBathroom: priorityFieldSchema.optional(),
+  secondaryBathroom: priorityFieldSchema.optional(),
+  secondaryBedroom: priorityFieldSchema.optional(),
+  livingEntertainment: priorityFieldSchema.optional(),
+  basement: priorityFieldSchema.optional(),
+  outdoorYardSpace: priorityFieldSchema.optional(),
+  parkingGarage: priorityFieldSchema.optional(),
+  overallCondition: priorityFieldSchema.optional(),
+});
+
 // Schema for creating a new priority
 // export const createPrioritySchema = basePrioritySchema.extend({
 //   createdDate: z.date({ required_error: 'Created date is required' }),
 // });
 
 // Schema for updating an existing priority
-export const updatePrioritySchema = basePrioritySchema;
+export const updatePrioritySchema = updatePrioritySchemaL;
 
 // Schema for pagination and filtering
 export const getPrioritiesSchema = z.object({
