@@ -10,7 +10,10 @@ import {
 export const SocialAccountTypeZ = z.enum(
   Object.keys(SOCIAL_ACCOUNT_ENUM) as [SocialAccountType],
 );
-
+export const locationType = z.object({
+  type: z.string().default('Point'), // Matches the "type" field with default "Point"
+  coordinates: z.array(z.number()), // Matches the coordinates as an array of numbers
+});
 export const RoleTypeZ = z.enum(Object.keys(ROLE_ENUM) as [RoleType]);
 
 export const socialAccountInfoSchema = z.object({
@@ -32,6 +35,8 @@ export const userOutSchema = z.object({
   socialAccount: z.array(socialAccountInfoSchema).optional(),
   updatedAt: z.date().optional(),
   createdAt: z.date().optional(),
+  address: z.string().optional(),
+  location: locationType,
 });
 
 export const userSchema = userOutSchema.extend({
