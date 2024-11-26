@@ -10,11 +10,12 @@ erDiagram
     
     USER {
         int id PK
-        string fullName
+        string fullname
+        string username "UNIQUE"
         string address
         string password
         array coordinates
-        ENUM userType "ADMIN, CUSTOMER, AGENT"
+        ENUM userType "HOME_BUYER, SUPER_ADMIN, HOME_AGENT"
         date createdDate
         date updatedDate
     }

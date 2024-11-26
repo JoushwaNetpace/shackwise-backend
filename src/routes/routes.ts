@@ -6,12 +6,16 @@ import healthCheckRouter, {
 } from '../healthcheck/healthcheck.routes';
 import uploadRouter, { UPLOAD_ROUTER_ROOT } from '../upload/upload.router';
 import userRouter, { USER_ROUTER_ROOT } from '../modules/user/user.router';
+import priorityRouter, {
+  PRIORITY_ROUTER_ROOT,
+} from '../modules/priority/priority.router';
 
 const router = express.Router();
 
 router.use(HEALTH_ROUTER_ROOT, healthCheckRouter);
 router.use(USER_ROUTER_ROOT, userRouter);
 router.use(AUTH_ROUTER_ROOT, authRouter);
+router.use(PRIORITY_ROUTER_ROOT, priorityRouter);
 router.use(UPLOAD_ROUTER_ROOT, uploadRouter);
 
 export default router;
