@@ -55,7 +55,11 @@ export const handleRegisterUser = async (
 ) => {
   const user = await registerUserByEmail(req.body);
 
-  return successResponse(res, 'User has been reigstered', user);
+  return successResponse(
+    res,
+    `User has been registered successfully. A verification email has been sent to ${user.email}`,
+    user,
+  );
 };
 
 export const handleLogout = async (_: Request, res: Response) => {

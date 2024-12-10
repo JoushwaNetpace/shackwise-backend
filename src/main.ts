@@ -20,6 +20,7 @@ import { useSocketIo } from './lib/realtime.server';
 import redisStore from './lib/session.store';
 import { extractJwt } from './middlewares/extract-jwt-schema.middleware';
 import apiRoutes from './routes/routes';
+import rateLimit from 'express-rate-limit';
 
 import swaggerUi from 'swagger-ui-express';
 
@@ -80,6 +81,12 @@ const boostrapServer = async () => {
 
   if (config.NODE_ENV === 'production') {
     app.use(helmet());
+    app.use(
+      rateLimit({
+        windowMs: 15 * 60 * 1000, // 15 minutes
+        max: 100, // limit each IP to 100 requests per windowMs
+      }),
+    );
   }
 
   app.use('/api', apiRoutes);

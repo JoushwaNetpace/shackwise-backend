@@ -52,10 +52,24 @@ export const compareHash = async (
   return argon2.verify(hashed, plainPassword);
 };
 
-export const signToken = async (payload: JwtPayload): Promise<string> => {
-  return sign(payload, String(config.JWT_SECRET), {
+// export const signToken = async (payload: JwtPayload): Promise<string> => {
+//   return sign(payload, String(config.JWT_SECRET), {
+//     expiresIn: config.JWT_EXPIRES_IN,
+//   });
+// };
+
+export const signToken = async (
+  payload: JwtPayload,
+): Promise<{ authToken: string; refreshToken: string }> => {
+  const authToken = sign(payload, String(config.JWT_SECRET), {
     expiresIn: config.JWT_EXPIRES_IN,
   });
+
+  const refreshToken = sign({ sub: payload.sub }, String(config.JWT_SECRET), {
+    expiresIn: config.REFRESH_TOKEN_EXPIRES_IN, // Add this in your config
+  });
+
+  return { authToken, refreshToken };
 };
 
 export const signPasswordResetToken = async (

@@ -30,3 +30,9 @@ export interface ResponseExtended extends Response {
   jsonValidate: Response['json'];
   sendValidate: Response['send'];
 }
+
+export interface typeErrorResponse {
+  success: boolean;
+  message: string;
+  data: object;
+}

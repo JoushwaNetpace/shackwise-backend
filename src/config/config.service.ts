@@ -20,6 +20,7 @@ const configSchema = z.object({
   CLIENT_SIDE_URL: z.string().url(),
   JWT_SECRET: z.string().min(1),
   JWT_EXPIRES_IN: z.string().regex(/^(\d+d|\d+h|\d+m|\d+s)$/),
+  REFRESH_TOKEN_EXPIRES_IN: z.string().regex(/^(\d+d|\d+h|\d+m|\d+s)$/),
   SESSION_EXPIRES_IN: z.string().min(1).transform(Number),
   PASSWORD_RESET_TOKEN_EXPIRES_IN: z.string().min(1).transform(Number),
   SET_PASSWORD_TOKEN_EXPIRES_IN: z.string().min(1).transform(Number),
