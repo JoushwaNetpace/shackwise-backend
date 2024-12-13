@@ -120,10 +120,10 @@ export const sendVerificationEmailUtil = async (
   };
 
   // Sign the token using the JWT payload
-  const token = await signToken(jwtPayload);
+  const { authToken } = await signToken(jwtPayload);
 
   // Construct the verification link
-  const verificationLink: string = `${config.CLIENT_SIDE_URL}/verify-email/${token}`;
+  const verificationLink: string = `${config.CLIENT_SIDE_URL}/verify-email/${authToken}`;
 
   // Enqueue the job to send the verification email
   await SendVerificationEmailQueue.add('send-verification-email', {

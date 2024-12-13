@@ -9,6 +9,7 @@ import {
   verifyToken,
 } from '../../utils/auth.utils';
 import { generateRandomNumbers } from '../../utils/common.utils';
+import { createUserBasePriorityUtil } from '../../utils/priority.utils';
 import { UserType } from '../user/user.dto';
 import {
   checkUserExistByEmail,
@@ -99,8 +100,10 @@ export const registerUserByEmail = async (
   const user = await createUser({ ...rest, role: role }, false);
 
   if (user) {
+    console.log('user>>', user);
     // Call the utility function to send the verification email
     await sendVerificationEmailUtil(user);
+    await createUserBasePriorityUtil(user);
   }
 
   return user;

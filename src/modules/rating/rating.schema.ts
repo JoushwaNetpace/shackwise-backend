@@ -31,7 +31,6 @@ export const updatePrioritySchemaL = z.object({
   listPMarketV: priorityFieldSchema.optional(),
   location: priorityFieldSchema.optional(),
   kitchenSize: priorityFieldSchema.optional(),
-  kitchenDesign: priorityFieldSchema.optional(),
   masterBedroom: priorityFieldSchema.optional(),
   masterBathroom: priorityFieldSchema.optional(),
   secondaryBathroom: priorityFieldSchema.optional(),

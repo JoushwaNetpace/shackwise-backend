@@ -5,7 +5,7 @@ import {
   CreatePrioritySchemaType,
   UpdatePrioritySchemaType,
   GetPrioritiesSchemaType,
-} from './priority.schema';
+} from './rating.schema';
 import { MongoIdSchemaType } from '../../common/common.schema';
 // import { PriorityType } from './priority.dto';
 
@@ -16,7 +16,7 @@ export const updatePriority = async (
   const priority = await Priority.findOneAndUpdate(
     { _id: priorityId },
     { $set: { ...payload } },
-    { new: true, runValidators: true, strict: false },
+    { new: true },
   );
 
   if (!priority) throw new Error('Priority not found');

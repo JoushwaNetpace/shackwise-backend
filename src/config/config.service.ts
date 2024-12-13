@@ -7,6 +7,8 @@ dotenv.config();
 
 const configSchema = z.object({
   REDIS_URL: z.string().url(),
+  REAL_ESTATE_API_URL: z.string().url(),
+  REAL_ESTATE_API_KEY: z.string(),
   PORT: z.string().regex(/^\d+$/).transform(Number),
   MONGO_DATABASE_URL: z.string().url(),
   SMTP_HOST: z.string().min(1).optional(),
