@@ -37,7 +37,7 @@ authRouter.post(
   handleLoginByUsername,
 );
 
-authRouter.post('/logout', {}, handleLogout);
+authRouter.post('/logout', {}, canAccess(), handleLogout);
 authRouter.post(
   '/verify-email',
   { requestType: { body: verifyEmailVerificationSchema } },
@@ -49,7 +49,12 @@ authRouter.post(
   handleResendVerificationEmail,
 );
 
-authRouter.get('/user', {}, canAccess(), handleGetCurrentUser);
+authRouter.get(
+  '/user',
+  {},
+  canAccess('roles', ['HOME_BUYER', 'HOME_AGENT']),
+  handleGetCurrentUser,
+);
 
 authRouter.post(
   '/forget-password',

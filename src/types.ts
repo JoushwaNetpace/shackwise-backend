@@ -36,3 +36,12 @@ export interface typeErrorResponse {
   message: string;
   data: object;
 }
+
+export interface PushNotificationPayload {
+  title: string;
+  body: string;
+  token: string; // FCM registration token
+  connectId?: string; // FCM registration token
+  notificationType: string; // FCM registration token
+  isRead?: boolean; // FCM registration token
+}

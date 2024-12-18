@@ -62,7 +62,10 @@ export const handleRegisterUser = async (
   );
 };
 
-export const handleLogout = async (_: Request, res: Response) => {
+export const handleLogout = async (req: Request, res: Response) => {
+  // console.log('req.user>', req.user);
+  // await updateUser(req.user._id, { fcmToken: '' });
+
   res.cookie(AUTH_COOKIE_KEY, undefined, COOKIE_CONFIG);
 
   return successResponse(res, 'Logout successful');

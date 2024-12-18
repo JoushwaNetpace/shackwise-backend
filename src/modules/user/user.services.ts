@@ -70,7 +70,22 @@ export const checkUserExistByEmail = async (
   }
   return user.toObject();
 };
+export const findUserByEmailAndUsername = async (
+  email: string,
+  username: string,
+  select?: string,
+): Promise<UserType | null> => {
+  const user = await User.findOne({
+    email,
+    username,
+  }).select(select ?? '');
 
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  return user.toObject();
+};
 export const deleteUser = async (userId: MongoIdSchemaType) => {
   const user = await User.findByIdAndDelete({ _id: userId.id });
 
@@ -120,6 +135,18 @@ export const getUsers = async (
   return {
     results,
     paginatorInfo,
+  };
+};
+export const getUserConnectionList = async (userId: MongoIdSchemaType) => {
+  const { _id } = userId;
+  const currentUser = await User.findOne({ _id });
+  if (!currentUser) {
+    throw new Error('User must be logged in');
+  }
+  const { connectionList } = currentUser;
+
+  return {
+    connectionList,
   };
 };
 
