@@ -41,14 +41,19 @@ const UserSchema: Schema<UserType> = new Schema(
     isActive: { type: Boolean, default: true },
     isVerified: { type: Boolean, default: false },
     phoneNo: { type: String },
+    fcmToken: { type: String },
     location: { type: locationSchema },
     address: { type: String },
 
     password: { type: String, required: true, select: false },
+    connectionList: { type: Array, default: [] },
     passwordResetCode: { type: String },
     socialAccount: [{ type: SocialAccountSchema, required: false }],
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    strict: false, // Allow fields not defined in the schema
+  },
 );
 
 export interface ISocialAccountDocument

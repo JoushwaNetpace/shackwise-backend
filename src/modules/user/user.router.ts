@@ -3,13 +3,16 @@ import MagicRouter from '../../openapi/magic-router';
 import {
   handleCreateSuperAdmin,
   handleCreateUser,
+  handleGetUserConnectionList,
   handleGetUsers,
+  handleSendNotification,
   handleUpdateUser,
 } from './user.controller';
 import { usersPaginatedSchema } from './user.dto';
 import {
   createUserSchema,
   getUsersSchema,
+  sendUserNotificationSchema,
   updateUserParamsSchema,
   updateUserSchema,
 } from './user.schema';
@@ -27,6 +30,12 @@ userRouter.get(
   canAccess(),
   handleGetUsers,
 );
+userRouter.get(
+  '/connection-list',
+  {},
+  canAccess('roles', ['SUPER_ADMIN', 'HOME_BUYER', 'HOME_AGENT']),
+  handleGetUserConnectionList,
+);
 
 userRouter.post(
   '/user',
@@ -34,6 +43,13 @@ userRouter.post(
   canAccess('roles', ['SUPER_ADMIN']),
   handleCreateUser,
 );
+userRouter.post(
+  '/user-notification',
+  { requestType: { body: sendUserNotificationSchema } },
+
+  handleSendNotification,
+);
+
 userRouter.patch(
   '/user/:userId',
   { requestType: { params: updateUserParamsSchema, body: updateUserSchema } },

@@ -16,6 +16,13 @@ export const updateUserSchema = z.object({
 
   name: z.string().min(1).optional(),
 });
+export const sendUserNotificationSchema = z.object({
+  title: z.string(),
+  body: z.string(),
+  userId: z.string(),
+
+  token: z.string(),
+});
 export const createUserSchema = z
   .object({
     email: z

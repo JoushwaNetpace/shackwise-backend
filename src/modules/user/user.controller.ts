@@ -4,8 +4,16 @@ import { MongoIdSchemaType } from '../../common/common.schema';
 import { errorResponse, successResponse } from '../../utils/api.utils';
 import { generateRandomPassword } from '../../utils/auth.utils';
 import { CreateUserSchemaType, GetUsersSchemaType } from './user.schema';
-import { createUser, deleteUser, getUsers, updateUser } from './user.services';
+import {
+  createUser,
+  deleteUser,
+  getUserConnectionList,
+  getUsers,
+  updateUser,
+} from './user.services';
 import { UserType } from './user.dto';
+import { sendPushNotification } from '../../utils/fcm.utils';
+import { SendNotificationQueue } from '../../queues/notification.queue';
 
 export const handleDeleteUser = async (
   req: Request<MongoIdSchemaType, unknown>,
@@ -59,6 +67,30 @@ export const handleCreateUser = async (
     StatusCodes.CREATED,
   );
 };
+export const handleSendNotification = async (
+  req: Request<
+    any,
+    unknown,
+    { userId: string; title: string; body: string; token: string }
+  >,
+  res: Response,
+) => {
+  const { title, body, token, userId } = req.body;
+  await SendNotificationQueue.add('send-user-notification', {
+    userId: userId,
+    title: title,
+    body: body,
+    connectId: null,
+    notificationType: 'GENERAL',
+    token: token,
+  });
+  return successResponse(
+    res,
+    'Notification has been sent to the  user',
+    {},
+    StatusCodes.ACCEPTED,
+  );
+};
 
 export const handleCreateSuperAdmin = async (
   _: Request<unknown, unknown, unknown>,
@@ -95,4 +127,12 @@ export const handleGetUsers = async (
   );
 
   return successResponse(res, undefined, { results, paginatorInfo });
+};
+export const handleGetUserConnectionList = async (
+  req: Request,
+  res: Response,
+) => {
+  const results = await getUserConnectionList(req.user);
+
+  return successResponse(res, undefined, results);
 };

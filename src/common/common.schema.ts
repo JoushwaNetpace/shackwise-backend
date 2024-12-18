@@ -36,7 +36,7 @@ export const paginatedResponseSchema = z.object({
 });
 
 export const mongoIdSchema = z.object({
-  id: z.string().refine((value) => validator.isMongoId(value)),
+  _id: z.string().refine((value) => validator.isMongoId(value)),
 });
 
 export const idSchema = z.object({

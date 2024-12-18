@@ -54,7 +54,11 @@ export const registerUserByEmailSchema = z
     return true;
   }, 'Password and confirm password must be same');
 
-export const loginUserByEmailSchema = baseCreateUser;
+export const loginUserByEmailSchema = z
+  .object({
+    fcmToken: z.string({ required_error: 'FCM Token is required' }),
+  })
+  .merge(baseCreateUser);
 export const verifyEmailVerificationSchema = z.object({
   token: z.string({ required_error: 'token is required' }).min(1),
 });

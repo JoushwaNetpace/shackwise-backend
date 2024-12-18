@@ -147,6 +147,9 @@ export const loginUserByUsername = async (
   };
 
   const token = await signToken(jwtPayload);
+  // update the fcm token
+
+  await updateUser(user._id, { fcmToken: payload.fcmToken });
 
   return token;
 };
