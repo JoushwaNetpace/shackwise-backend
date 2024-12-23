@@ -18,6 +18,12 @@ import notificationRouter, {
 import connection_requestRouter, {
   CONNECTION_REQUEST_ROUTER_ROOT,
 } from '../modules/connection_request/connection_request.router';
+import ratingRouter, {
+  RATING_ROUTER_ROOT,
+} from '../modules/rating/rating.router';
+import leaderboardRouter, {
+  LEADERBOARD_ROUTER_ROOT,
+} from '../modules/leaderboard/leaderboard.router';
 
 const router = express.Router();
 
@@ -28,6 +34,8 @@ router.use(PRIORITY_ROUTER_ROOT, priorityRouter);
 router.use(PROPERTY_ROUTER_ROOT, propertyRouter);
 router.use(NOTIFICATION_ROUTER_ROOT, notificationRouter);
 router.use(CONNECTION_REQUEST_ROUTER_ROOT, connection_requestRouter);
+router.use(RATING_ROUTER_ROOT, ratingRouter);
 router.use(UPLOAD_ROUTER_ROOT, uploadRouter);
+router.use(LEADERBOARD_ROUTER_ROOT, leaderboardRouter);
 
 export default router;

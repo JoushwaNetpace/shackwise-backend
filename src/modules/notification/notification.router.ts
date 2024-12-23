@@ -23,7 +23,9 @@ const notificationRouter = new MagicRouter(NOTIFICATION_ROUTER_ROOT);
 // Route to fetch a user notification by its userId
 notificationRouter.get(
   '/user-notification',
-  {},
+  {
+    requestType: { query: getNotificationsSchema },
+  },
   canAccess('roles', ['HOME_BUYER', 'HOME_AGENT']),
   handleGetNotificationByUserId,
 );

@@ -1,85 +1,82 @@
 import { canAccess } from '../../middlewares/can-access.middleware';
 import MagicRouter from '../../openapi/magic-router';
 import {
-  handleCreatePriority,
-  handleGetPriorities,
-  handleUpdatePriority,
-  handleDeletePriority,
-  handleGetPriorityById,
-  handleGetPriorityByUserId,
+  handleCreateRating,
+  handleGetRatings,
+  handleUpdateRating,
+  handleDeleteRating,
+  handleGetRatingById,
+  handleGetRatingByUserId,
+  handleAddRater,
 } from './rating.controller';
 import {
-  // createPrioritySchema,
-  prioritiesPaginatedSchema,
-  updatePriorityParamsSchema,
-  updatePrioritySchema,
-  getPrioritiesSchema,
-  basePrioritySchema,
+  ratingsPaginatedSchema,
+  updateRatingParamsSchema,
+  updateRatingSchema,
+  getRatingsSchema,
+  baseRatingSchema,
 } from './rating.schema';
 
-export const PRIORITY_ROUTER_ROOT = '/priority';
+export const RATING_ROUTER_ROOT = '/rating';
 
-const priorityRouter = new MagicRouter(PRIORITY_ROUTER_ROOT);
-// Route to fetch a user priority by its userId
-priorityRouter.get(
-  '/user-priority',
+const ratingRouter = new MagicRouter(RATING_ROUTER_ROOT);
+
+ratingRouter.get(
+  '/user-rating',
   {},
   canAccess('roles', ['HOME_BUYER', 'HOME_AGENT']),
-  handleGetPriorityByUserId,
+  handleGetRatingByUserId,
 );
-// Route to fetch all priorities with optional pagination and filters
-priorityRouter.get(
+
+ratingRouter.get(
   '/',
   {
-    requestType: { query: getPrioritiesSchema },
-    responseModel: prioritiesPaginatedSchema,
+    requestType: { query: getRatingsSchema },
+    responseModel: ratingsPaginatedSchema,
   },
   canAccess(),
-  handleGetPriorities,
+  handleGetRatings,
 );
 
-// Route to fetch a single priority by its ID
-priorityRouter.get(
-  '/:priorityId',
-  { requestType: { params: updatePriorityParamsSchema } },
+ratingRouter.get(
+  '/:ratingId',
+  { requestType: { params: updateRatingParamsSchema } },
   canAccess(),
-  handleGetPriorityById,
-);
-// Route to fetch a single priority by its ID
-priorityRouter.get(
-  '/:priorityId',
-  { requestType: { params: updatePriorityParamsSchema } },
-  canAccess(),
-  handleGetPriorityById,
+  handleGetRatingById,
 );
 
-// Route to create a new priority
-priorityRouter.post(
+ratingRouter.post(
   '/',
-  { requestType: { body: basePrioritySchema } },
+  { requestType: { body: baseRatingSchema } },
   canAccess('roles', ['SUPER_ADMIN', 'HOME_AGENT', 'HOME_BUYER']),
-  handleCreatePriority,
+  handleCreateRating,
 );
 
-// Route to update an existing priority
-priorityRouter.patch(
-  '/:priorityId',
+// New route for adding a rater
+ratingRouter.post(
+  '/:ratingId/rater',
+  { requestType: { params: updateRatingParamsSchema } },
+  canAccess('roles', ['HOME_AGENT', 'HOME_BUYER']),
+  handleAddRater,
+);
+
+ratingRouter.patch(
+  '/:ratingId',
   {
     requestType: {
-      params: updatePriorityParamsSchema,
-      body: updatePrioritySchema,
+      params: updateRatingParamsSchema,
+      body: updateRatingSchema,
     },
   },
   canAccess('roles', ['SUPER_ADMIN', 'HOME_AGENT', 'HOME_BUYER']),
-  handleUpdatePriority,
+  handleUpdateRating,
 );
 
-// Route to delete a priority
-priorityRouter.delete(
-  '/:priorityId',
-  { requestType: { params: updatePriorityParamsSchema } },
+ratingRouter.delete(
+  '/:ratingId',
+  { requestType: { params: updateRatingParamsSchema } },
   canAccess('roles', ['SUPER_ADMIN']),
-  handleDeletePriority,
+  handleDeleteRating,
 );
 
-export default priorityRouter.getRouter();
+export default ratingRouter.getRouter();

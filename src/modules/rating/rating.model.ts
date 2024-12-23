@@ -1,41 +1,52 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 // Define the schema for "rating" and "note" object fields
-const PriorityFieldSchema: Schema = new Schema({
+const RatingFieldSchema: Schema = new Schema({
   rating: { type: Number, required: true, default: 0 },
   note: { type: String },
 });
 
-const PrioritySchema: Schema = new Schema(
+const RatingSchema: Schema = new Schema(
   {
-    userId: {
+    propertyId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'Property',
       required: true,
-      unique: true,
       index: true,
-    }, // Foreign key to the User collection
-
-    affordability: { type: PriorityFieldSchema, required: true },
-    listPMarketV: { type: PriorityFieldSchema, required: true },
-    location: { type: PriorityFieldSchema, required: true },
-    kitchenSize: { type: PriorityFieldSchema, required: true },
-    masterBedroom: { type: PriorityFieldSchema, required: true },
-    masterBathroom: { type: PriorityFieldSchema, required: true },
-    secondaryBathroom: { type: PriorityFieldSchema, required: true },
-    secondaryBedroom: { type: PriorityFieldSchema, required: true },
-    livingEntertainment: { type: PriorityFieldSchema, required: true },
-    basement: { type: PriorityFieldSchema, required: true },
-    outdoorYardSpace: { type: PriorityFieldSchema, required: true },
-    parkingGarage: { type: PriorityFieldSchema, required: true },
-    overallCondition: { type: PriorityFieldSchema, required: true },
+    },
+    ratedBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+      },
+    ],
+    ratingMode: {
+      type: String,
+      required: true,
+      enum: ['SHARE', 'COMPARE', 'GENERAL'],
+    },
+    affordability: { type: RatingFieldSchema, required: true },
+    listPMarketV: { type: RatingFieldSchema, required: true },
+    location: { type: RatingFieldSchema, required: true },
+    kitchenSize: { type: RatingFieldSchema, required: true },
+    masterBedroom: { type: RatingFieldSchema, required: true },
+    masterBathroom: { type: RatingFieldSchema, required: true },
+    secondaryBathroom: { type: RatingFieldSchema, required: true },
+    secondaryBedroom: { type: RatingFieldSchema, required: true },
+    livingEntertainment: { type: RatingFieldSchema, required: true },
+    basement: { type: RatingFieldSchema, required: true },
+    outdoorYardSpace: { type: RatingFieldSchema, required: true },
+    parkingGarage: { type: RatingFieldSchema, required: true },
+    overallCondition: { type: RatingFieldSchema, required: true },
   },
-  { timestamps: true }, // Automatically adds `createdAt` and `updatedAt` fields
+  { timestamps: true, strict: false },
 );
 
-// Define the interface for the Priority document
-export interface IPriorityDocument extends Document {
-  userId: string; // Foreign key reference
+// Define the interface for the Rating document
+export interface IRatingDocument extends Document {
+  propertyId: string;
+  ratedBy: string[];
   affordability: { rating: number; note?: string };
   listPMarketV: { rating: number; note?: string };
   location: { rating: number; note?: string };
@@ -51,7 +62,6 @@ export interface IPriorityDocument extends Document {
   overallCondition: { rating: number; note?: string };
 }
 
-// Create the Priority model
-const Priority = mongoose.model<IPriorityDocument>('Priority', PrioritySchema);
+const Rating = mongoose.model<IRatingDocument>('Rating', RatingSchema);
 
-export default Priority;
+export default Rating;

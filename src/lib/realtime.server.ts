@@ -33,7 +33,6 @@ export const useSocketIo = (server: IServer): RealtimeServer => {
 
 // Export the `io` instance
 export const getIo = (): RealtimeServer => {
-  console.log('io>', io);
   if (!io) {
     throw new Error('Socket.io not initialized!');
   }

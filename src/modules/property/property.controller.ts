@@ -5,13 +5,16 @@ import {
   createProperty,
   deleteProperty,
   getProperties,
+  getPropertiesWithFilters,
   updateProperty,
   getPropertyById,
+  getPropertyByPropId,
 } from './property.services';
 import {
   CreatePropertySchemaType,
   UpdatePropertySchemaType,
   GetPropertiesSchemaType,
+  PropertyFilterSchemaType,
 } from './property.schema';
 import { MongoIdSchemaType } from '../../common/common.schema';
 
@@ -21,6 +24,19 @@ export const handleCreateProperty = async (
 ) => {
   try {
     const data = req.body;
+
+    // if property already exists then update the proxperty data else create a new property
+    const propertyI = await getPropertyByPropId(data.propertyId);
+    if (propertyI) {
+      const updatedProperty = await updateProperty(propertyI._id, data);
+      return successResponse(
+        res,
+        'Property updated successfully',
+        updatedProperty,
+        StatusCodes.OK,
+      );
+    }
+
     const property = await createProperty(data);
 
     return successResponse(
@@ -123,6 +139,33 @@ export const handleGetProperties = async (
     return errorResponse(
       res,
       error.message || 'Error fetching properties',
+      StatusCodes.BAD_REQUEST,
+      error,
+    );
+  }
+};
+
+export const handleGetFilteredProperties = async (
+  req: Request<unknown, unknown, unknown, PropertyFilterSchemaType>,
+  res: Response,
+) => {
+  try {
+    const { page = 1, limit = 10, ...filters } = req.query;
+
+    const { results, paginatorInfo } = await getPropertiesWithFilters(
+      { id: req.user.sub },
+      filters,
+      { page, limit },
+    );
+
+    return successResponse(res, 'Filtered properties fetched successfully', {
+      results,
+      paginatorInfo,
+    });
+  } catch (error: any) {
+    return errorResponse(
+      res,
+      error.message || 'Error fetching filtered properties',
       StatusCodes.BAD_REQUEST,
       error,
     );

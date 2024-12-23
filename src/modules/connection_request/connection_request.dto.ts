@@ -1,12 +1,12 @@
 import { z } from 'zod';
 import { definePaginatedResponse } from '../../common/common.utils';
-import { RoleTypeZ } from '../user/user.dto';
 
 // Base Connection Request Schema
 export const baseConnectionRequestSchema = z.object({
   senderId: z.string().uuid(),
   receiverId: z.string().uuid(),
   status: z.enum(['ACCEPTED', 'REJECTED', 'PENDING']),
+  requestType: z.enum(['PARTNER', 'AGENT']),
   isRead: z.boolean().default(false),
 });
 
@@ -21,7 +21,7 @@ export const updateConnectionRequestParamsSchema = z.object({
 export const createConnectionRequestSchema = z.object({
   fullName: z.string(),
   email: z.string().email(),
-  role: RoleTypeZ,
+  requestType: z.enum(['PARTNER', 'AGENT']),
 });
 
 // Paginated schema for connection requests

@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { RoleTypeZ } from '../user/user.dto';
 
 export const baseConnectionRequestSchema = z.object({
   senderId: z.string().uuid(),
@@ -10,13 +9,13 @@ export const baseConnectionRequestSchema = z.object({
 export const createConnectionRequestSchema = z.object({
   username: z.string(),
   email: z.string().email(),
-  role: RoleTypeZ,
+  requestType: z.enum(['PARTNER', 'AGENT']),
 });
 export const updateConnectionRequestSchema =
   baseConnectionRequestSchema.partial();
 
 export const updateConnectionRequestParamsSchema = z.object({
-  connectionRequestId: z.string().uuid(),
+  connectionRequestId: z.string(),
 });
 
 export const connectionRequestsPaginatedSchema = z.object({

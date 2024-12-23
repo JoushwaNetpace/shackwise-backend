@@ -27,7 +27,7 @@ connectionRequestRouter.get(
     requestType: { query: getConnectionRequestsSchema },
     responseModel: connectionRequestsPaginatedSchema,
   },
-  canAccess(),
+  canAccess('roles', ['HOME_BUYER', 'SUPER_ADMIN']),
   handleGetConnectionRequests,
 );
 

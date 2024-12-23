@@ -6,7 +6,7 @@ export const notificationSchema = z.object({
   title: z.string({ required_error: 'Title is required' }),
   body: z.string({ required_error: 'Body is required' }),
   // type: z.string({ required_error: 'Type is required' }),
-  token: z.string({ required_error: 'token is required' }),
+  token: z.string().optional(),
   connectId: z.string().optional(),
   notificationType: z.enum(
     ['GENERAL', 'COMPARE_REQUEST', 'SHARE_REQUEST', 'CONNECTION_REQUEST'],
@@ -74,13 +74,33 @@ export const notificationsPaginatedSchema = z.object({
     hasNextPage: z.boolean(),
   }),
 });
-
+export const getNotificationByUserIdSchema = z.object({
+  limitParam: z
+    .string()
+    .default('10')
+    .refine(
+      (value) => !isNaN(Number(value)) && Number(value) > 0,
+      'Limit must be a positive integer',
+    )
+    .transform(Number),
+  pageParam: z
+    .string()
+    .default('1')
+    .refine(
+      (value) => !isNaN(Number(value)) && Number(value) > 0,
+      'Page must be a positive integer',
+    )
+    .transform(Number),
+});
 // Export types
 export type NotificationSchemaType = z.infer<typeof notificationSchema>;
 export type UpdateNotificationSchemaType = z.infer<
   typeof updateNotificationSchema
 >;
 export type GetNotificationsSchemaType = z.infer<typeof getNotificationsSchema>;
+export type GetNotificationsByUserIdSchemaType = z.infer<
+  typeof getNotificationByUserIdSchema
+>;
 export type UpdateNotificationParamsSchemaType = z.infer<
   typeof updateNotificationParamsSchema
 >;

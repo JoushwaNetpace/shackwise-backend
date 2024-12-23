@@ -1,95 +1,108 @@
 import { FilterQuery } from 'mongoose';
 import { getPaginator } from '../../utils/getPaginator';
-import Priority, { IPriorityDocument } from './priority.model';
+import Rating, { IRatingDocument } from './rating.model';
 import {
-  CreatePrioritySchemaType,
-  UpdatePrioritySchemaType,
-  GetPrioritiesSchemaType,
+  CreateRatingSchemaType,
+  UpdateRatingSchemaType,
+  GetRatingsSchemaType,
 } from './rating.schema';
 import { MongoIdSchemaType } from '../../common/common.schema';
-// import { PriorityType } from './priority.dto';
 
-export const updatePriority = async (
-  priorityId: string,
-  payload: UpdatePrioritySchemaType,
-): Promise<IPriorityDocument> => {
-  const priority = await Priority.findOneAndUpdate(
-    { _id: priorityId },
+export const updateRating = async (
+  ratingId: string,
+  payload: UpdateRatingSchemaType,
+): Promise<IRatingDocument> => {
+  const rating = await Rating.findOneAndUpdate(
+    { _id: ratingId },
     { $set: { ...payload } },
-    { new: true },
+    { new: true, runValidators: true, strict: false },
   );
 
-  if (!priority) throw new Error('Priority not found');
+  if (!rating) throw new Error('Rating not found');
 
-  return priority.toObject();
+  return rating.toObject();
 };
 
-export const getPriorityById = async (priorityId: string, select?: string) => {
-  const priority = await Priority.findOne({ _id: priorityId }).select(
-    select ?? '',
+export const addRater = async (
+  ratingId: string,
+  userId: string,
+): Promise<IRatingDocument> => {
+  const rating = await Rating.findOneAndUpdate(
+    { _id: ratingId },
+    { $addToSet: { ratedBy: userId } },
+    { new: true, runValidators: true },
   );
 
-  if (!priority) {
-    throw new Error('Priority not found');
+  if (!rating) throw new Error('Rating not found');
+
+  return rating.toObject();
+};
+
+export const getRatingById = async (ratingId: string, select?: string) => {
+  const rating = await Rating.findOne({ _id: ratingId }).select(select ?? '');
+
+  if (!rating) {
+    throw new Error('Rating not found');
   }
 
-  return priority.toObject();
+  return rating.toObject();
 };
-export const getPriorityByUserId = async (
+
+export const getRatingByUserId = async (
   userId: MongoIdSchemaType,
   select?: string,
-): Promise<CreatePrioritySchemaType> => {
+): Promise<CreateRatingSchemaType> => {
   try {
-    const priority = await Priority.findOne({ userId }).select(select || '');
+    const rating = await Rating.findOne({ userId }).select(select || '');
 
-    if (!priority) {
-      throw new Error('Priority not found'); // You can customize the error to be more specific or add status code handling
+    if (!rating) {
+      throw new Error('Rating not found'); // You can customize the error to be more specific or add status code handling
     }
 
-    return priority.toObject(); // Convert to plain object if needed
+    return rating.toObject(); // Convert to plain object if needed
   } catch (error: any) {
     throw new Error(
-      `Error fetching priority for userId ${userId}: ${error.message}`,
+      `Error fetching rating for userId ${userId}: ${error.message}`,
     );
   }
 };
 
-export const deletePriority = async (priorityId: MongoIdSchemaType) => {
-  const priority = await Priority.findByIdAndDelete({ _id: priorityId.id });
+export const deleteRating = async (ratingId: string) => {
+  const rating = await Rating.findByIdAndDelete({ _id: ratingId.id });
 
-  if (!priority) {
-    throw new Error('Priority not found');
+  if (!rating) {
+    throw new Error('Rating not found');
   }
 };
 
-export const getPriorities = async (
+export const getRatings = async (
   userId: MongoIdSchemaType,
-  payload: GetPrioritiesSchemaType,
+  payload: GetRatingsSchemaType,
 ) => {
   const { id } = userId;
-  const currentUser = await Priority.findById({ _id: id });
+  const currentUser = await Rating.findById({ _id: id });
   if (!currentUser) {
     throw new Error('User must be logged in');
   }
 
-  const conditions: FilterQuery<IPriorityDocument> = {};
+  const conditions: FilterQuery<IRatingDocument> = {};
 
   if (payload.searchString) {
     conditions.$or = [
       { 'affordability.note': { $regex: payload.searchString, $options: 'i' } },
       { 'location.note': { $regex: payload.searchString, $options: 'i' } },
-      // Add other fields as necessary
     ];
   }
 
-  const totalRecords = await Priority.countDocuments(conditions);
+  const totalRecords = await Rating.countDocuments(conditions);
   const paginatorInfo = getPaginator(
     payload.limitParam,
     payload.pageParam,
     totalRecords,
   );
 
-  const results = await Priority.find(conditions)
+  const results = await Rating.find(conditions)
+    .populate('ratedBy', 'name email') // Populate ratedBy with user details
     .limit(paginatorInfo.limit)
     .skip(paginatorInfo.skip)
     .exec();
@@ -100,13 +113,12 @@ export const getPriorities = async (
   };
 };
 
-export const createPriority = async (
-  payload: CreatePrioritySchemaType,
-): Promise<IPriorityDocument> => {
-  console.log('>>', payload);
-  const createdPriority = await Priority.create({
+export const createRating = async (
+  payload: CreateRatingSchemaType,
+): Promise<IRatingDocument> => {
+  const createdRating = await Rating.create({
     ...payload,
   });
 
-  return createdPriority.toObject();
+  return createdRating.toObject();
 };
