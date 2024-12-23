@@ -15,10 +15,16 @@ const ConnectionRequestSchema: Schema = new Schema(
       required: true,
       index: true,
     },
+
     status: {
       type: String,
       enum: ['ACCEPTED', 'REJECTED', 'PENDING'],
       default: 'PENDING',
+    },
+    requestType: {
+      type: String,
+      enum: ['PARTNER', 'AGENT'],
+      default: 'PARTNER',
     },
     isRead: {
       type: Boolean,
@@ -34,6 +40,7 @@ export interface IConnectionRequestDocument extends Document {
   receiverId: string;
   status: 'ACCEPTED' | 'REJECTED' | 'PENDING' | '';
   isRead: boolean;
+  requestType: 'PARTNER' | 'AGENT';
   createdAt: Date;
   updatedAt: Date;
 }

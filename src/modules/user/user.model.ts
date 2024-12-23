@@ -46,7 +46,12 @@ const UserSchema: Schema<UserType> = new Schema(
     address: { type: String },
 
     password: { type: String, required: true, select: false },
-    connectionList: { type: Array, default: [] },
+    connectionList: [
+      {
+        connectionType: { type: String, required: true },
+        userId: { type: Schema.Types.ObjectId, ref: 'User' }, // Ensure 'ref' matches the model name
+      },
+    ],
     passwordResetCode: { type: String },
     socialAccount: [{ type: SocialAccountSchema, required: false }],
   },

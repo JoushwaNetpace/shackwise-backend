@@ -44,7 +44,7 @@ export const propertySchema = z.object({
   estimatedEquity: z.number(),
   estimatedValue: z.number(),
   floodZone: z.boolean(),
-  floodZoneDescription: z.string(),
+  floodZoneDescription: z.string().nullable(),
   floodZoneType: z.string(),
   foreclosure: z.boolean(),
   forSale: z.boolean(),

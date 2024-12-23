@@ -37,15 +37,19 @@ export const userOutSchema = z.object({
   updatedAt: z.date().optional(),
   createdAt: z.date().optional(),
   address: z.string().optional(),
-  location: locationType,
+  location: locationType.optional(),
 });
 
+export const connectionSchema = z.object({
+  userId: z.string().optional(),
+  connectionType: z.string(),
+});
 export const userSchema = userOutSchema.extend({
   otp: z.string().nullable().optional(),
   password: z.string(),
   passwordResetCode: z.string().optional().nullable(),
   isVerified: z.boolean().optional(),
-  connectionList: z.array(z.unknown()),
+  connectionList: z.array(connectionSchema).optional(),
 });
 
 export const usersPaginatedSchema = definePaginatedResponse(userOutSchema);

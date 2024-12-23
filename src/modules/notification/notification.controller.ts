@@ -14,6 +14,7 @@ import {
   NotificationSchemaType,
   UpdateNotificationSchemaType,
   GetNotificationsSchemaType,
+  GetNotificationsByUserIdSchemaType,
 } from './notification.schema';
 
 export const handleDeleteNotification = async (
@@ -136,23 +137,29 @@ export const handleGetNotificationById = async (
 };
 
 export const handleGetNotificationByUserId = async (
-  req: Request,
+  req: Request<unknown, unknown, unknown, GetNotificationsSchemaType>,
   res: Response,
 ) => {
   try {
     const { _id: userId } = req.user;
-    const notification = await getNotificationByUserId(userId);
+    const { limitParam, pageParam, searchString } = req.query;
+
+    const { results, paginatorInfo } = await getNotificationByUserId(userId, {
+      limitParam,
+      pageParam,
+      searchString,
+    });
 
     return successResponse(
       res,
-      'User notification fetched successfully',
-      notification,
+      'User notifications fetched successfully',
+      { results, paginatorInfo },
       StatusCodes.OK,
     );
   } catch (error: any) {
     return errorResponse(
       res,
-      error.message || 'An error occurred while fetching user notification',
+      error.message || 'An error occurred while fetching user notifications',
       StatusCodes.BAD_REQUEST,
       error,
     );

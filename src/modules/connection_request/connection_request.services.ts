@@ -9,11 +9,13 @@ import {
   GetConnectionRequestsSchemaType,
 } from './connection_request.schema';
 import { MongoIdSchemaType } from '../../common/common.schema';
+import { updateUser } from '../user/user.services';
 
 // Create a new connection request
 export const createConnectionRequest = async (payload: {
   senderId: string;
   receiverId: string;
+  requestType: string;
 }): Promise<IConnectionRequestDocument> => {
   try {
     const createdConnectionRequest = await ConnectionRequest.create({
@@ -135,19 +137,46 @@ export const updateConnectionRequest = async (
   payload: UpdateConnectionRequestSchemaType,
 ): Promise<IConnectionRequestDocument> => {
   try {
+    // Update the connection request and get the updated document
     const connectionRequest = await ConnectionRequest.findByIdAndUpdate(
       connectionRequestId,
       { $set: { ...payload } },
       { new: true },
     );
+
     if (!connectionRequest) {
       throw new Error('Connection Request not found');
     }
+
+    // Check if the status is updated to 'ACCEPTED'
+    const isStatusAccepted = payload.status === 'ACCEPTED';
+
+    if (isStatusAccepted) {
+      // Destructure senderId and receiverId
+      const { senderId, receiverId, requestType } = connectionRequest;
+
+      // Add both users to each other's connection list
+      await Promise.all([
+        updateUser(receiverId, {
+          $addToSet: {
+            connectionList: { userId: senderId, connectionType: requestType },
+          },
+        }),
+        updateUser(senderId, {
+          $addToSet: {
+            connectionList: { userId: receiverId, connectionType: requestType },
+          },
+        }),
+      ]);
+    }
+
     return connectionRequest.toObject();
   } catch (error: unknown) {
     if (error instanceof Error) {
       throw new Error(`Error updating connection request: ${error.message}`);
     }
-    throw new Error('An unknown error occurred');
+    throw new Error(
+      'An unknown error occurred while updating the connection request',
+    );
   }
 };

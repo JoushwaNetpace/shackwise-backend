@@ -8,23 +8,26 @@ import { MongoIdSchemaType } from '../../common/common.schema';
 
 export const updateUser = async (
   userId: string,
-  payload: Partial<UserType>,
+  updateOperation: Record<string, any>,
 ): Promise<UserType> => {
-  const user = await User.findOneAndUpdate(
-    {
-      _id: userId,
-    },
-    { $set: { ...payload } },
-    {
+  try {
+    const user = await User.findByIdAndUpdate(userId, updateOperation, {
       new: true,
-    },
-  );
+      runValidators: true,
+    });
 
-  if (!user) throw new Error('User not found');
+    if (!user) {
+      throw new Error('User not found');
+    }
 
-  return user.toObject();
+    return user.toObject();
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw new Error(`Error updating user: ${error.message}`);
+    }
+    throw new Error('An unknown error occurred while updating the user');
+  }
 };
-
 export const getUserById = async (userId: string, select?: string) => {
   const user = await User.findOne({
     _id: userId,
@@ -81,7 +84,7 @@ export const findUserByEmailAndUsername = async (
   }).select(select ?? '');
 
   if (!user) {
-    throw new Error('User not found');
+    throw new Error('No User Found with given username and email');
   }
 
   return user.toObject();
@@ -139,10 +142,19 @@ export const getUsers = async (
 };
 export const getUserConnectionList = async (userId: MongoIdSchemaType) => {
   const { _id } = userId;
-  const currentUser = await User.findOne({ _id });
+
+  // Find the current user and populate the connection list with full user info
+  const currentUser = await User.findOne({ _id })
+    .select('_id fullName username connectionList')
+    .populate({
+      path: 'connectionList.userId', // Assumes 'userId' references another User document
+      select: 'name username email', // Select the fields you need
+    });
+
   if (!currentUser) {
-    throw new Error('User must be logged in');
+    throw new Error('User not found!');
   }
+
   const { connectionList } = currentUser;
 
   return {

@@ -3,6 +3,7 @@ import { Queue } from '../lib/queue.server';
 import { getIo } from '../lib/realtime.server';
 import { NotificationSchemaType } from '../modules/notification/notification.schema';
 import { createNotification } from '../modules/notification/notification.services';
+import { getUserById } from '../modules/user/user.services';
 import { sendPushNotification } from '../utils/fcm.utils';
 
 export const SendNotificationQueue = Queue<NotificationSchemaType>(
@@ -11,11 +12,19 @@ export const SendNotificationQueue = Queue<NotificationSchemaType>(
     try {
       const { data } = job;
 
+      // get user fcm token
+      const userInfo = await getUserById(data.userId);
+      console.log('userInfo>>', userInfo);
+
       await createNotification({
         ...data,
+        token: userInfo.fcmToken,
       });
-      // send fcm notification
-      await sendPushNotification({ ...data });
+      console.log('userInfo.fcmToken>>', userInfo.fcmToken);
+      if (userInfo.fcmToken != '') {
+        // send fcm notification
+        await sendPushNotification({ ...data, token: userInfo.fcmToken });
+      }
 
       // Access the `io` instance and emit a notification event
       const io = getIo();

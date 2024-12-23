@@ -12,7 +12,6 @@ import {
   updateUser,
 } from './user.services';
 import { UserType } from './user.dto';
-import { sendPushNotification } from '../../utils/fcm.utils';
 import { SendNotificationQueue } from '../../queues/notification.queue';
 
 export const handleDeleteUser = async (

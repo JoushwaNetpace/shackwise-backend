@@ -40,67 +40,57 @@ export const getNotificationById = async (
 
 export const getNotificationByUserId = async (
   userId: MongoIdSchemaType,
-): Promise<NotificationSchemaType> => {
+  payload: GetNotificationsSchemaType,
+) => {
   try {
-    const notification = await Notification.aggregate([
+    const { limitParam, pageParam, searchString } = payload;
+
+    const conditions: FilterQuery<INotificationDocument> = { userId };
+
+    if (searchString) {
+      conditions.$or = [
+        { title: { $regex: searchString, $options: 'i' } },
+        { body: { $regex: searchString, $options: 'i' } },
+      ];
+    }
+
+    // Count total records for pagination
+    const totalRecords = await Notification.countDocuments(conditions);
+
+    const paginatorInfo = getPaginator(limitParam, pageParam, totalRecords);
+
+    const results = await Notification.aggregate([
+      { $match: conditions },
       {
-        // Match notifications based on userId
-        $match: { userId: userId },
-      },
-      {
-        // Lookup to populate the connectId
         $lookup: {
-          from: 'connectionrequests', // Replace with the actual collection name for connectId
+          from: 'connectionrequests',
           localField: 'connectId',
           foreignField: '_id',
           as: 'connectId',
         },
       },
+      { $unwind: { path: '$connectId', preserveNullAndEmptyArrays: true } },
       {
-        // Unwind the connectId array
-        $unwind: {
-          path: '$connectId',
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        // Lookup to populate the senderId in connectId
         $lookup: {
-          from: 'users', // Collection name for users
+          from: 'users',
           localField: 'connectId.senderId',
           foreignField: '_id',
           as: 'connectId.senderId',
         },
       },
       {
-        // Unwind the senderId array
         $unwind: {
           path: '$connectId.senderId',
           preserveNullAndEmptyArrays: true,
         },
       },
-      // {
-      //   // Lookup to populate the receiverId
-      //   $lookup: {
-      //     from: 'users', // Collection name for users
-      //     localField: 'connectId.receiverId',
-      //     foreignField: '_id',
-      //     as: 'connectId.receiverId',
-      //   },
-      // },
-      // {
-      //   // Unwind the receiverId array
-      //   $unwind: {
-      //     path: '$connectId.receiverId',
-      //     preserveNullAndEmptyArrays: true,
-      //   },
-      // },
+      { $sort: { createdAt: -1 } },
+      { $skip: paginatorInfo.skip },
+      { $limit: paginatorInfo.limit },
       {
-        // Project the required fields, showing populated senderId and receiverId
         $project: {
           _id: 1,
           userId: 1,
-
           title: 1,
           body: 1,
           notificationType: 1,
@@ -115,20 +105,15 @@ export const getNotificationByUserId = async (
             receiverId: '$connectId.receiverId',
           },
           createdAt: 1,
-
           updatedAt: 1,
         },
       },
     ]);
 
-    if (!notification) {
-      throw new Error('Notification not found');
-    }
-
-    return notification;
+    return { results, paginatorInfo };
   } catch (error: any) {
     throw new Error(
-      `Error fetching notification for userId ${userId}: ${error.message}`,
+      `Error fetching notifications for userId ${userId}: ${error.message}`,
     );
   }
 };

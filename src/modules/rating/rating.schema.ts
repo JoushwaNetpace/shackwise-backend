@@ -1,57 +1,52 @@
 import * as z from 'zod';
 
 // Define a schema for fields containing `rating` and `note`
-const priorityFieldSchema = z.object({
-  rating: z.number({ required_error: 'Rating is required' }).min(0).max(100), // Assuming ratings range from 1 to 5
-  note: z.string().optional(), // Note is optional
+const ratingFieldSchema = z.object({
+  rating: z.number({ required_error: 'Rating is required' }).min(0).max(100),
+  note: z.string().optional(),
 });
 
-// Base schema for creating or updating a priority
-export const basePrioritySchema = z.object({
-  userId: z.string({ required_error: 'User ID is required' }), // User ID reference
-  affordability: priorityFieldSchema,
-  listPMarketV: priorityFieldSchema,
-  location: priorityFieldSchema,
-  kitchenSize: priorityFieldSchema,
-  masterBedroom: priorityFieldSchema,
-  masterBathroom: priorityFieldSchema,
-  secondaryBathroom: priorityFieldSchema,
-  secondaryBedroom: priorityFieldSchema,
-  livingEntertainment: priorityFieldSchema,
-  basement: priorityFieldSchema,
-  outdoorYardSpace: priorityFieldSchema,
-  parkingGarage: priorityFieldSchema,
-  overallCondition: priorityFieldSchema,
+// Base schema for creating or updating a rating
+export const baseRatingSchema = z.object({
+  ratingMode: z.enum(['SHARE', 'COMPARE', 'GENERAL']),
+
+  ratedBy: z.array(z.string({ required_error: 'Rater ID is required' })),
+  propertyId: z.string({ required_error: 'PropertyID is required' }),
+  affordability: ratingFieldSchema,
+  listPMarketV: ratingFieldSchema,
+  location: ratingFieldSchema,
+  kitchenSize: ratingFieldSchema,
+  masterBedroom: ratingFieldSchema,
+  masterBathroom: ratingFieldSchema,
+  secondaryBathroom: ratingFieldSchema,
+  secondaryBedroom: ratingFieldSchema,
+  livingEntertainment: ratingFieldSchema,
+  basement: ratingFieldSchema,
+  outdoorYardSpace: ratingFieldSchema,
+  parkingGarage: ratingFieldSchema,
+  overallCondition: ratingFieldSchema,
 });
 
-// Update schema for updating a priority
-export const updatePrioritySchemaL = z.object({
-  userId: z.string({ required_error: 'User ID is required' }), // User ID reference
-  affordability: priorityFieldSchema.optional(),
-  listPMarketV: priorityFieldSchema.optional(),
-  location: priorityFieldSchema.optional(),
-  kitchenSize: priorityFieldSchema.optional(),
-  masterBedroom: priorityFieldSchema.optional(),
-  masterBathroom: priorityFieldSchema.optional(),
-  secondaryBathroom: priorityFieldSchema.optional(),
-  secondaryBedroom: priorityFieldSchema.optional(),
-  livingEntertainment: priorityFieldSchema.optional(),
-  basement: priorityFieldSchema.optional(),
-  outdoorYardSpace: priorityFieldSchema.optional(),
-  parkingGarage: priorityFieldSchema.optional(),
-  overallCondition: priorityFieldSchema.optional(),
+// Update schema for updating a rating
+export const updateRatingSchema = z.object({
+  ratedBy: z.array(z.string()).optional(),
+  affordability: ratingFieldSchema.optional(),
+  listPMarketV: ratingFieldSchema.optional(),
+  location: ratingFieldSchema.optional(),
+  kitchenSize: ratingFieldSchema.optional(),
+  masterBedroom: ratingFieldSchema.optional(),
+  masterBathroom: ratingFieldSchema.optional(),
+  secondaryBathroom: ratingFieldSchema.optional(),
+  secondaryBedroom: ratingFieldSchema.optional(),
+  livingEntertainment: ratingFieldSchema.optional(),
+  basement: ratingFieldSchema.optional(),
+  outdoorYardSpace: ratingFieldSchema.optional(),
+  parkingGarage: ratingFieldSchema.optional(),
+  overallCondition: ratingFieldSchema.optional(),
 });
-
-// Schema for creating a new priority
-// export const createPrioritySchema = basePrioritySchema.extend({
-//   createdDate: z.date({ required_error: 'Created date is required' }),
-// });
-
-// Schema for updating an existing priority
-export const updatePrioritySchema = updatePrioritySchemaL;
 
 // Schema for pagination and filtering
-export const getPrioritiesSchema = z.object({
+export const getRatingsSchema = z.object({
   searchString: z.string().optional(),
   limitParam: z
     .string()
@@ -71,17 +66,15 @@ export const getPrioritiesSchema = z.object({
     .transform(Number),
 });
 
-// Schema for the priority ID in params
-export const updatePriorityParamsSchema = z.object({
-  priorityId: z
-    .string()
-    .regex(/^[a-fA-F0-9]{24}$/, 'Invalid priority ID format'),
+// Schema for the rating ID in params
+export const updateRatingParamsSchema = z.object({
+  ratingId: z.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid rating ID format'),
 });
 
 // Schema for paginated response
-export const prioritiesPaginatedSchema = z.object({
+export const ratingsPaginatedSchema = z.object({
   results: z.array(
-    basePrioritySchema.extend({
+    baseRatingSchema.extend({
       id: z.string(),
       createdDate: z.date(),
       updatedDate: z.date().optional(),
@@ -96,12 +89,10 @@ export const prioritiesPaginatedSchema = z.object({
 });
 
 // Export types
-export type CreatePrioritySchemaType = z.infer<typeof basePrioritySchema>;
-export type UpdatePrioritySchemaType = z.infer<typeof updatePrioritySchema>;
-export type GetPrioritiesSchemaType = z.infer<typeof getPrioritiesSchema>;
-export type UpdatePriorityParamsSchemaType = z.infer<
-  typeof updatePriorityParamsSchema
+export type CreateRatingSchemaType = z.infer<typeof baseRatingSchema>;
+export type UpdateRatingSchemaType = z.infer<typeof updateRatingSchema>;
+export type GetRatingsSchemaType = z.infer<typeof getRatingsSchema>;
+export type UpdateRatingParamsSchemaType = z.infer<
+  typeof updateRatingParamsSchema
 >;
-export type PrioritiesPaginatedSchemaType = z.infer<
-  typeof prioritiesPaginatedSchema
->;
+export type RatingsPaginatedSchemaType = z.infer<typeof ratingsPaginatedSchema>;

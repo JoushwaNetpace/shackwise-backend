@@ -30,12 +30,22 @@ export const updateProperty = async (
   return property.toObject();
 };
 
-export const getPropertyById = async (propertyId: string, select?: string) => {
-  const property = await Property.findOne({ _id: propertyId }).select(
-    select ?? '',
-  );
+export const getPropertyById = async (id: string, select?: string) => {
+  const property = await Property.findOne({ _id: id }).select(select ?? '');
 
   if (!property) throw new Error('Property not found');
+
+  return property.toObject();
+};
+export const getPropertyByPropId = async (
+  propertyId: string,
+  select?: string,
+) => {
+  const property = await Property.findOne({ propertyId }).select(select ?? '');
+
+  if (!property) {
+    return null;
+  }
 
   return property.toObject();
 };
@@ -56,8 +66,12 @@ export const getProperties = async (
 
   if (payload.search) {
     conditions.$or = [
-      { 'details.title': { $regex: payload.search, $options: 'i' } },
-      { 'details.location': { $regex: payload.search, $options: 'i' } },
+      { 'address.address': { $regex: payload.search, $options: 'i' } },
+      { 'address.city': { $regex: payload.search, $options: 'i' } },
+      { 'address.street': { $regex: payload.search, $options: 'i' } },
+      { 'neighborhood.name': { $regex: payload.search, $options: 'i' } },
+      { mlsStatus: { $regex: payload.search, $options: 'i' } },
+      { propertyType: { $regex: payload.search, $options: 'i' } },
     ];
   }
 
@@ -67,6 +81,77 @@ export const getProperties = async (
   const results = await Property.find(conditions)
     .limit(paginatorInfo.limit)
     .skip(paginatorInfo.skip)
+    .sort({ createdAt: -1 })
+    .exec();
+
+  return {
+    results,
+    paginatorInfo,
+  };
+};
+
+export const getPropertiesWithFilters = async (
+  userId: MongoIdSchemaType,
+  filters: {
+    minPrice?: number;
+    maxPrice?: number;
+    minBeds?: number;
+    maxBeds?: number;
+    minBaths?: number;
+    maxBaths?: number;
+    propertyType?: string[];
+    mlsStatus?: string[];
+    motivatedSeller?: boolean;
+  },
+  pagination: { page: number; limit: number },
+) => {
+  const conditions: FilterQuery<IPropertyDocument> = { userId: userId.id };
+
+  if (filters.minPrice || filters.maxPrice) {
+    conditions.estimatedValue = {};
+    if (filters.minPrice) conditions.estimatedValue.$gte = filters.minPrice;
+    if (filters.maxPrice) conditions.estimatedValue.$lte = filters.maxPrice;
+  }
+
+  if (filters.minBeds || filters.maxBeds) {
+    conditions.bedrooms = {};
+    if (filters.minBeds) conditions.bedrooms.$gte = filters.minBeds;
+    if (filters.maxBeds) conditions.bedrooms.$lte = filters.maxBeds;
+  }
+
+  if (filters.minBaths || filters.maxBaths) {
+    conditions.bathrooms = {};
+    if (filters.minBaths) conditions.bathrooms.$gte = filters.minBaths;
+    if (filters.maxBaths) conditions.bathrooms.$lte = filters.maxBaths;
+  }
+
+  if (filters.propertyType?.length) {
+    conditions.propertyType = { $in: filters.propertyType };
+  }
+
+  if (filters.mlsStatus?.length) {
+    conditions.mlsStatus = { $in: filters.mlsStatus };
+  }
+
+  if (filters.motivatedSeller) {
+    conditions.$or = [
+      { 'mlsKeywords.motivatedSellerHigh': true },
+      { 'mlsKeywords.motivatedSellerMed': true },
+      { 'mlsKeywords.motivatedSellerLow': true },
+    ];
+  }
+
+  const totalRecords = await Property.countDocuments(conditions);
+  const paginatorInfo = getPaginator(
+    pagination.limit,
+    pagination.page,
+    totalRecords,
+  );
+
+  const results = await Property.find(conditions)
+    .limit(paginatorInfo.limit)
+    .skip(paginatorInfo.skip)
+    .sort({ createdAt: -1 })
     .exec();
 
   return {

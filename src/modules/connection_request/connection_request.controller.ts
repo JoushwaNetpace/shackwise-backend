@@ -20,6 +20,7 @@ import {
   getUserConnectionList,
 } from '../user/user.services';
 import { SendNotificationQueue } from '../../queues/notification.queue';
+// import { IUserDocument } from '../user/user.model';
 // import { SendNotificationQueue } from '../../queues/notification.queue';
 
 export const handleCreateConnectionRequest = async (
@@ -27,28 +28,20 @@ export const handleCreateConnectionRequest = async (
   res: Response,
 ) => {
   try {
-    const { username, email, role } = req.body;
+    const { username, email, requestType } = req.body;
     const { connectionList } = await getUserConnectionList(req.user);
 
-    if (connectionList.length == 0) {
-      const receiverUser = await findUserByEmailAndUsername(
+    if (connectionList?.length == 0) {
+      const receiverUser: any = await findUserByEmailAndUsername(
         email,
         username,
         '',
       );
 
-      if (!receiverUser) {
-        return errorResponse(
-          res,
-          'No User Found with given username and password!',
-          StatusCodes.NOT_FOUND,
-          {},
-        );
-      }
-
       const connectionRequest = await createConnectionRequest({
         senderId: req.user._id,
         receiverId: receiverUser._id,
+        requestType,
       });
       // // Enqueue the job to send the connection request  notification
       await SendNotificationQueue.add('send-user-notification', {
@@ -57,7 +50,6 @@ export const handleCreateConnectionRequest = async (
         body: `You have received a connect invite from ${req.user.name}`,
         connectId: connectionRequest._id,
         notificationType: 'CONNECTION_REQUEST',
-        token: receiverUser.fcmToken,
       });
       return successResponse(
         res,
@@ -171,6 +163,17 @@ export const handleUpdateConnectionRequest = async (
       data,
     );
 
+    if (data.status === 'REJECTED' || data.status === 'ACCEPTED') {
+      // // Enqueue the job to send the connection request  notification
+      await SendNotificationQueue.add('send-user-notification', {
+        userId: updatedConnectionRequest.senderId,
+        title: `Connection Request Update`,
+        body: `Your connection request has been ${data.status.toLowerCase()}!`,
+        connectId: connectionRequestId,
+        notificationType: 'CONNECTION_REQUEST',
+        isRead: false,
+      });
+    }
     return successResponse(
       res,
       'Connection request updated successfully',

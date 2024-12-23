@@ -3,6 +3,7 @@ import MagicRouter from '../../openapi/magic-router';
 import {
   handleCreateProperty,
   handleGetProperties,
+  handleGetFilteredProperties,
   handleUpdateProperty,
   handleDeleteProperty,
   handleGetPropertyById,
@@ -10,6 +11,7 @@ import {
 import {
   basePropertySchema,
   getPropertiesSchema,
+  propertyFilterSchema,
   updatePropertyParamsSchema,
   updatePropertySchema,
 } from './property.schema';
@@ -40,7 +42,7 @@ propertyRouter.get(
 propertyRouter.post(
   '/',
   { requestType: { body: basePropertySchema } },
-  canAccess('roles', ['SUPER_ADMIN', 'HOME_AGENT']),
+  canAccess('roles', ['SUPER_ADMIN', 'HOME_AGENT', 'HOME_BUYER']),
   handleCreateProperty,
 );
 
@@ -63,6 +65,16 @@ propertyRouter.delete(
   { requestType: { params: updatePropertyParamsSchema } },
   canAccess('roles', ['SUPER_ADMIN']),
   handleDeleteProperty,
+);
+
+// Add new route for filtered properties
+propertyRouter.get(
+  '/filter',
+  {
+    requestType: { query: propertyFilterSchema },
+  },
+  canAccess(),
+  handleGetFilteredProperties,
 );
 
 export default propertyRouter.getRouter();

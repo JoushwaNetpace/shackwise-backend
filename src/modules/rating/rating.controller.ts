@@ -3,94 +3,122 @@ import { StatusCodes } from 'http-status-codes';
 import { MongoIdSchemaType } from '../../common/common.schema';
 import { errorResponse, successResponse } from '../../utils/api.utils';
 import {
-  createPriority,
-  deletePriority,
-  getPriorities,
-  updatePriority,
-  getPriorityById,
-  getPriorityByUserId,
-} from './priority.services';
+  createRating,
+  deleteRating,
+  getRatings,
+  updateRating,
+  getRatingById,
+  getRatingByUserId,
+  addRater,
+} from './rating.services';
 import {
-  CreatePrioritySchemaType,
-  UpdatePrioritySchemaType,
-  GetPrioritiesSchemaType,
+  CreateRatingSchemaType,
+  UpdateRatingSchemaType,
+  GetRatingsSchemaType,
 } from './rating.schema';
 
-export const handleDeletePriority = async (
-  req: Request<MongoIdSchemaType, unknown>,
+export const handleDeleteRating = async (
+  req: Request<{ ratingId: string }, unknown>,
   res: Response,
 ) => {
   try {
-    await deletePriority({ id: req.params.id });
-
-    return successResponse(res, 'Priority has been deleted');
+    await deleteRating(req.params.ratingId);
+    return successResponse(res, 'Rating has been deleted');
   } catch (error: any) {
     return errorResponse(
       res,
-      error.message || 'An error occurred while deleting the priority',
+      error.message || 'An error occurred while deleting the rating',
       StatusCodes.BAD_REQUEST,
       error,
     );
   }
 };
 
-export const handleUpdatePriority = async (
-  req: Request<{ priorityId: string }, unknown, UpdatePrioritySchemaType>,
+export const handleUpdateRating = async (
+  req: Request<{ ratingId: string }, unknown, UpdateRatingSchemaType>,
   res: Response,
 ) => {
   try {
-    const { priorityId } = req.params;
+    const { ratingId } = req.params;
     const data = req.body;
 
-    const updatedPriority = await updatePriority(priorityId, data);
+    const updatedRating = await updateRating(ratingId, data);
 
     return successResponse(
       res,
-      'Priority has been updated successfully',
-      updatedPriority,
+      'Rating has been updated successfully',
+      updatedRating,
       StatusCodes.OK,
     );
   } catch (error: any) {
     return errorResponse(
       res,
-      error.message || 'An error occurred while updating the priority',
+      error.message || 'An error occurred while updating the rating',
       StatusCodes.BAD_REQUEST,
       error,
     );
   }
 };
 
-export const handleCreatePriority = async (
-  req: Request<unknown, unknown, CreatePrioritySchemaType>,
+export const handleCreateRating = async (
+  req: Request<unknown, unknown, CreateRatingSchemaType>,
   res: Response,
 ) => {
   try {
     const data = req.body;
+    // Add the current user to ratedBy array
+    data.ratedBy = [req.user._id];
 
-    const priority = await createPriority(data);
+    const rating = await createRating(data);
 
     return successResponse(
       res,
-      'Priority has been created successfully',
-      priority,
+      'Rating has been created successfully',
+      rating,
       StatusCodes.CREATED,
     );
   } catch (error: any) {
     return errorResponse(
       res,
-      error.message || 'An error occurred while creating the priority',
+      error.message || 'An error occurred while creating the rating',
       StatusCodes.BAD_REQUEST,
       error,
     );
   }
 };
 
-export const handleGetPriorities = async (
-  req: Request<unknown, unknown, unknown, GetPrioritiesSchemaType>,
+export const handleAddRater = async (
+  req: Request<{ ratingId: string }, unknown>,
   res: Response,
 ) => {
   try {
-    const { results, paginatorInfo } = await getPriorities(
+    const { ratingId } = req.params;
+    const userId = req.user._id;
+
+    const updatedRating = await addRater(ratingId, userId);
+
+    return successResponse(
+      res,
+      'Rater added successfully',
+      updatedRating,
+      StatusCodes.OK,
+    );
+  } catch (error: any) {
+    return errorResponse(
+      res,
+      error.message || 'An error occurred while adding rater',
+      StatusCodes.BAD_REQUEST,
+      error,
+    );
+  }
+};
+
+export const handleGetRatings = async (
+  req: Request<unknown, unknown, unknown, GetRatingsSchemaType>,
+  res: Response,
+) => {
+  try {
+    const { results, paginatorInfo } = await getRatings(
       {
         id: req.user.sub,
       },
@@ -101,55 +129,53 @@ export const handleGetPriorities = async (
   } catch (error: any) {
     return errorResponse(
       res,
-      error.message || 'An error occurred while fetching priorities',
+      error.message || 'An error occurred while fetching ratings',
       StatusCodes.BAD_REQUEST,
       error,
     );
   }
 };
 
-export const handleGetPriorityById = async (
-  req: Request<{ priorityId: string }, unknown>,
+export const handleGetRatingById = async (
+  req: Request<{ ratingId: string }, unknown>,
   res: Response,
 ) => {
   try {
-    const { priorityId } = req.params;
+    const { ratingId } = req.params;
 
-    const priority = await getPriorityById(priorityId);
+    const rating = await getRatingById(ratingId);
 
     return successResponse(
       res,
-      'Priority fetched successfully',
-      priority,
+      'Rating fetched successfully',
+      rating,
       StatusCodes.OK,
     );
   } catch (error: any) {
     return errorResponse(
       res,
-      error.message || 'An error occurred while fetching the priority',
+      error.message || 'An error occurred while fetching the rating',
       StatusCodes.BAD_REQUEST,
       error,
     );
   }
 };
-export const handleGetPriorityByUserId = async (
-  req: Request,
-  res: Response,
-) => {
+
+export const handleGetRatingByUserId = async (req: Request, res: Response) => {
   try {
     const { _id: userId } = req.user;
-    const priority = await getPriorityByUserId(userId);
+    const rating = await getRatingByUserId(userId);
 
     return successResponse(
       res,
-      'User Priority fetched successfully',
-      priority,
+      'User Rating fetched successfully',
+      rating,
       StatusCodes.OK,
     );
   } catch (error: any) {
     return errorResponse(
       res,
-      error.message || 'An error occurred while fetching user priority',
+      error.message || 'An error occurred while fetching user rating',
       StatusCodes.BAD_REQUEST,
       error,
     );
